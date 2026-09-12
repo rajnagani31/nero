@@ -41,7 +41,7 @@ def github_service():
 @router.post("/webhook/github")
 async def github_webhook(
     request: Request,
-    current_user = Depends(get_current_user_from_token),
+    # current_user = Depends(get_current_user_from_token),
     code_review_service: CodeReviewService = Depends(get_code_review_service),
 ):
     payload = await request.body()
@@ -79,7 +79,7 @@ async def github_webhook(
         )
         if review_job_id is not None:
             print(f"[Review Job ID] {review_job_id} - Queued for review")
-            review_pull_request.delay(review_job_id)
+            review_pull_request.delay(review_job_id) # type:ignore
 
     return {"status": "webhook received", "review_job_id": review_job_id}
 

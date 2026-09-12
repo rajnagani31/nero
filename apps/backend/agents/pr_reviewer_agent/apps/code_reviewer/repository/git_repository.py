@@ -163,7 +163,7 @@ class CodeReviewRepository:
                 repo_id=data.repo_id,
                 installation_id=data.installation_id,
                 github_account_id=data.github_account_id,
-                user_id=1,  # TODO : Still need set Auth service
+                user_id=data.user_id,  # TODO : Still need set Auth service
                 full_name=data.full_name,
                 owner=data.owner,
                 default_branch=data.default_branch,
@@ -219,7 +219,7 @@ class CodeReviewRepository:
             repo_id=repo_id,
             installation_id=installation_id,
             github_account_id=github_account_id,
-            user_id=user_id if user_id is not None else 1,
+            user_id=user_id if user_id is not None else None,
             full_name=repository_data.get("full_name"),
             owner=owner,
             default_branch=repository_data.get("default_branch"),
