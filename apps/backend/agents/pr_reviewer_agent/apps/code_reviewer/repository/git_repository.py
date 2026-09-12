@@ -7,6 +7,9 @@ from sqlalchemy.dialects.postgresql import insert
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.repository import (
     Repository,
 )
+from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.github_installation import (
+    GitHubInstallation,
+)
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.schema.pr_schema import (
     PullRequestData,
 )
@@ -34,6 +37,7 @@ class CodeReviewRepository:
             pr = self.get_pull_request(session, repo_id, pr_number)
 
             if pr:
+                pr.user_id = repo.user_id
                 pr.commit_sha = pr_data.commit_sha
                 pr.state = pr_data.state
                 pr.title = pr_data.title
@@ -45,6 +49,7 @@ class CodeReviewRepository:
             else:
 
                 pr = PullRequest(
+                    user_id=repo.user_id,
                     repo_id=repo.id,
                     pr_number=pr_data.pr_number,
                     commit_sha=pr_data.commit_sha,
@@ -95,6 +100,7 @@ class CodeReviewRepository:
             installation_id = installation.get("id")
             account = installation.get("account") or {}
             github_account_id = account.get("id")
+            user_id = self._get_installation_user_id(session, installation_id)
             repositories = (
                 payload.get("repositories") or payload.get("repositories_added") or []
             )
@@ -108,6 +114,7 @@ class CodeReviewRepository:
                         repository_data,
                         installation_id=installation_id,
                         github_account_id=github_account_id,
+                        user_id=user_id,
                     )
                 )
 
@@ -142,6 +149,7 @@ class CodeReviewRepository:
     def get_or_create_repository(self, session, pr_data):
         try:
             data = pr_data
+            user_id = self._get_installation_user_id(session, data.installation_id)
             pr_repo = session.execute(
                 select(Repository).where(
                     Repository.repo_id == data.repo_id, Repository.is_active == True
@@ -152,6 +160,7 @@ class CodeReviewRepository:
                     pr_repo,
                     installation_id=data.installation_id,
                     github_account_id=data.github_account_id,
+                    user_id=user_id,
                     full_name=data.full_name,
                     owner=data.owner,
                     default_branch=data.default_branch,
@@ -163,7 +172,7 @@ class CodeReviewRepository:
                 repo_id=data.repo_id,
                 installation_id=data.installation_id,
                 github_account_id=data.github_account_id,
-                user_id=data.user_id,  # TODO : Still need set Auth service
+                user_id=user_id,
                 full_name=data.full_name,
                 owner=data.owner,
                 default_branch=data.default_branch,
@@ -239,6 +248,7 @@ class CodeReviewRepository:
     ) -> list[Repository]:
         session = self.session_factory()
         try:
+            self._upsert_installation_owner(session, installation_id, user_id)
             saved_repositories = []
             for repo_data in repositories_data:
                 saved_repositories.append(
@@ -250,6 +260,12 @@ class CodeReviewRepository:
                         user_id=user_id,
                     )
                 )
+            for repository in saved_repositories:
+                session.execute(
+                    update(PullRequest)
+                    .where(PullRequest.repo_id == repository.id)
+                    .values(user_id=user_id)
+                )
             session.commit()
             for repo in saved_repositories:
                 session.refresh(repo)
@@ -259,6 +275,41 @@ class CodeReviewRepository:
             raise
         finally:
             session.close()
+
+    def _upsert_installation_owner(
+        self, session, installation_id: int, user_id: int
+    ) -> GitHubInstallation:
+        """Bind an installation to its connecting NeroAI user.
+
+        An installation is owned by exactly one NeroAI user. Reconnecting it
+        is idempotent for that user, but another user cannot silently take it
+        over.
+        """
+        installation = session.execute(
+            select(GitHubInstallation).where(
+                GitHubInstallation.installation_id == installation_id
+            )
+        ).scalar_one_or_none()
+        if installation is None:
+            installation = GitHubInstallation(
+                installation_id=installation_id, user_id=user_id
+            )
+            session.add(installation)
+            session.flush()
+            return installation
+
+        if installation.user_id != user_id:
+            raise ValueError("GitHub installation is already connected to another user")
+        return installation
+
+    def _get_installation_user_id(self, session, installation_id: int | None) -> int | None:
+        if installation_id is None:
+            return None
+        return session.execute(
+            select(GitHubInstallation.user_id).where(
+                GitHubInstallation.installation_id == installation_id
+            )
+        ).scalar_one_or_none()
 
     def get_user_repositories(self, user_id: int) -> list[Repository]:
         session = self.session_factory()
