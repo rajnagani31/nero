@@ -114,7 +114,10 @@ async def get_github_install(
             detail="GITHUB_APP_SLUG is not configured",
         )
 
-    url = f"https://github.com/apps/{app_slug}/installations/new?state={current_user.id}"
+    # Do not put a NeroAI user id in the URL. GitHub App installation events do
+    # not carry this value and webhook ownership is resolved via the durable
+    # installation-to-user mapping written by the authenticated callback.
+    url = f"https://github.com/apps/{app_slug}/installations/new"
 
     return {"url": url}
 
@@ -222,5 +225,4 @@ async def get_github_repositories(
             for repo in user_repos
         ]
     }
-
 

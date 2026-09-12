@@ -13,5 +13,6 @@ from .review_file_result import ReviewFileResult
 from .review_job import ReviewJob, ReviewJobStatusEnum
 from .review_report import ReviewReport
 from .repository import Repository
+from .github_installation import GitHubInstallation
 # Export Base for Alembic
 __all__ = ['Base']
