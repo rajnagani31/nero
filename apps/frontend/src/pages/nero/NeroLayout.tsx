@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { authFetch, getAuthToken, clearAuthToken, refreshAuthToken } from "@/utils/auth";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -25,33 +26,66 @@ export const NeroLayout: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    try {
-      const token = localStorage.getItem("codebot_access_token");
-      if (token) {
-        fetch("/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((res) => (res.ok ? res.json() : null))
-          .then((data) => {
-            if (data) {
-              const rawName =
-                data.display_name ||
-                data.name ||
-                (typeof data.email === "string" ? data.email.split("@")[0] : null) ||
-                "Raj";
-              const formatted = String(rawName);
-              setUserName(formatted.charAt(0).toUpperCase() + formatted.slice(1));
-            }
-          })
-          .catch(() => {});
+    let isMounted = true;
+
+    const verifySession = async () => {
+      try {
+        let token = getAuthToken();
+        if (!token) {
+          token = (await refreshAuthToken()) || "";
+        }
+
+        if (!token) {
+          const currentPath = window.location.pathname + window.location.search;
+          navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
+          return;
+        }
+
+        const res = await authFetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && isMounted) {
+            const rawName =
+              data.display_name ||
+              data.name ||
+              (typeof data.email === "string" ? data.email.split("@")[0] : null) ||
+              "Raj";
+            const formatted = String(rawName);
+            setUserName(formatted.charAt(0).toUpperCase() + formatted.slice(1));
+          }
+        } else if (res.status === 401) {
+          clearAuthToken();
+          const currentPath = window.location.pathname + window.location.search;
+          navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
+          return;
+        }
+
+        // Check for GitHub App installation redirect query params
+        const urlParams = new URLSearchParams(window.location.search);
+        const installationId = urlParams.get("installation_id");
+        if (installationId) {
+          authFetch(`/api/github/callback?installation_id=${installationId}`)
+            .then((cbRes) => cbRes.json())
+            .then(() => {
+              const cleanUrl = window.location.pathname;
+              window.history.replaceState({}, document.title, cleanUrl);
+            })
+            .catch(() => {});
+        }
+      } catch {
+        // Safe fallback
       }
-    } catch {
-      // Safe fallback stays "Raj"
-    }
-  }, []);
+    };
+
+    verifySession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("codebot_access_token");
+    clearAuthToken();
     navigate("/login");
   };
 
