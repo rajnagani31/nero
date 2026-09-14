@@ -178,3 +178,43 @@ class GitHubPullRequestService:
             PullRequestFile.model_validate(file_data)
             for file_data in data.get("files", [])
         ]
+    
+class GitHubInstallationService:
+    def __init__(
+        self,
+        token_service: GitHubInstallationTokenService | None = None,
+    ):
+        self.token_service = token_service or GitHubInstallationTokenService()
+
+    @classmethod
+    async def get_installation_repositories(
+        cls,
+        installation_id: int,
+        token_service: GitHubInstallationTokenService | None = None,
+    ) -> list[dict]:
+        """
+        Return repositories accessible to a GitHub App installation.
+        """
+        svc = token_service or GitHubInstallationTokenService()
+        token = await svc.create_installation_access_token(
+            installation_id
+        )
+
+        url = "https://api.github.com/installation/repositories"
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                url,
+                headers=headers,
+            )
+
+            response.raise_for_status()
+
+        return response.json()["repositories"]
+

@@ -62,3 +62,22 @@ class PullRequestFile(BaseModel):
     contents_url: str | None = None
     patch: str | None = None
     previous_filename: str | None = None
+
+
+class GitHubInstallUrlResponse(BaseModel):
+    url: str
+
+
+class RepositoryResponse(BaseModel):
+    id: int
+    repo_id: int | None = None
+    installation_id: int | None = None
+    github_account_id: int | None = None
+    user_id: int | None = None
+    full_name: str
+    owner: str
+    default_branch: str | None = None
+    is_private: bool = False
+    is_active: bool = True
+    is_deleted: bool = False
+

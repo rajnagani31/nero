@@ -1,106 +1,200 @@
-import React from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  BarChart2,
-  Database,
+  LayoutDashboard,
+  FolderGit2,
+  Bot,
   GitPullRequest,
+  BarChart2,
   Settings,
-  Sparkles,
-  ArrowLeft,
+  Search,
   User,
+  LogOut,
   Bell,
-  Code2,
+  ChevronDown,
+  Filter,
+  Download,
+  Calendar,
+  Layers,
+  Users,
 } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
 
 export const NeroLayout: React.FC = () => {
+  const [userName, setUserName] = useState("Raj");
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("codebot_access_token");
+      if (token) {
+        fetch("/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data) {
+              const rawName =
+                data.display_name ||
+                data.name ||
+                (typeof data.email === "string" ? data.email.split("@")[0] : null) ||
+                "Raj";
+              const formatted = String(rawName);
+              setUserName(formatted.charAt(0).toUpperCase() + formatted.slice(1));
+            }
+          })
+          .catch(() => {});
+      }
+    } catch {
+      // Safe fallback stays "Raj"
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("codebot_access_token");
+    navigate("/login");
+  };
+
   const navItems = [
-    { to: "/nero/analytics", label: "Analytics & Metrics", icon: BarChart2 },
-    { to: "/nero/memory", label: "Vector Memory", icon: Database },
-    { to: "/nero/pr-reviews", label: "PR Reviews & HITL", icon: GitPullRequest },
-    { to: "/nero/settings", label: "Settings & Keys", icon: Settings },
+    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { to: "/dashboard/repositories", label: "Repositories", icon: FolderGit2 },
+    { to: "/codebot", label: "AI Chat", icon: Bot },
+    { to: "/dashboard/pr-reviews", label: "PR Reviews", icon: GitPullRequest },
+    { to: "/dashboard/analytics", label: "Analytics", icon: BarChart2 },
+    { to: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-nero-soft-bg text-nero-text font-sans flex flex-col">
-      {/* Top Header Bar */}
-      <header className="bg-white border-b border-nero-border px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 rounded-lg bg-nero-dark flex items-center justify-center text-white text-xs font-bold">
+    <div className="min-h-screen bg-[#151515] text-[#F2F2F2] font-sans flex flex-col antialiased">
+      {/* Top Navigation Bar */}
+      <header className="bg-[#191919] border-b border-[#333333] px-5 py-2.5 flex items-center justify-between sticky top-0 z-50">
+        {/* Brand & Filter Bar */}
+        <div className="flex items-center gap-6">
+          <Link to="/dashboard" className="flex items-center gap-2.5 group">
+            <div className="w-7 h-7 rounded-[3px] bg-[#078A62] flex items-center justify-center text-[#F2F2F2] font-extrabold text-xs tracking-tight shadow-sm">
               N
             </div>
-            <span className="font-extrabold text-base tracking-tight text-nero-text">
-              Nero<span className="text-nero-green">AI</span> Suite
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-sm tracking-tight text-[#F2F2F2]">
+                Nero<span className="text-[#078A62]">AI</span>
+              </span>
+              <span className="px-1.5 py-0.5 rounded-[2px] bg-[#222222] border border-[#333333] text-[9px] font-mono font-semibold tracking-wider text-[#9A9A9A] uppercase">
+                ANALYTICS
+              </span>
+            </div>
           </Link>
 
-          <span className="h-4 w-[1px] bg-nero-border hidden sm:block"></span>
+          <span className="h-4 w-[1px] bg-[#333333] hidden lg:block"></span>
 
-          <Link
-            to="/codebot"
-            className="hidden sm:flex items-center gap-1.5 text-xs text-nero-text-secondary hover:text-nero-text transition-colors"
-          >
-            <Code2 className="w-3.5 h-3.5 text-nero-green" /> Open Codebot Workspace
-          </Link>
+          {/* Quick Filter Controls */}
+          <div className="hidden lg:flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1.5 bg-[#1F1F1F] border border-[#333333] rounded-[3px] px-2.5 py-1 text-[#9A9A9A]">
+              <Users className="w-3.5 h-3.5 text-[#6F6F6F]" />
+              <span className="text-[#F2F2F2] font-medium">Team:</span>
+              <span className="text-[#9A9A9A]">All Engineering</span>
+              <ChevronDown className="w-3 h-3 text-[#6F6F6F]" />
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-[#1F1F1F] border border-[#333333] rounded-[3px] px-2.5 py-1 text-[#9A9A9A]">
+              <Layers className="w-3.5 h-3.5 text-[#6F6F6F]" />
+              <span className="text-[#F2F2F2] font-medium">Repos:</span>
+              <span className="text-[#9A9A9A]">24 Selected</span>
+              <ChevronDown className="w-3 h-3 text-[#6F6F6F]" />
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-[#1F1F1F] border border-[#333333] rounded-[3px] px-2.5 py-1 text-[#9A9A9A]">
+              <Calendar className="w-3.5 h-3.5 text-[#6F6F6F]" />
+              <span className="text-[#9A9A9A]">Last 30 Days</span>
+              <ChevronDown className="w-3 h-3 text-[#6F6F6F]" />
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Badge variant="green" className="text-[11px] font-mono">
-            System Live • 14 Repos Synced
-          </Badge>
-          <button className="p-2 text-nero-text-secondary hover:text-nero-text rounded-lg hover:bg-nero-soft-bg">
+        {/* Header Right Actions */}
+        <div className="flex items-center gap-3 text-xs">
+          {/* Global Search Bar */}
+          <div className="hidden sm:flex items-center gap-2 bg-[#1F1F1F] border border-[#333333] rounded-[3px] px-2.5 py-1 w-48 md:w-64 focus-within:border-[#078A62] transition-colors">
+            <Search className="w-3.5 h-3.5 text-[#6F6F6F] shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search repos, PRs, authors..."
+              className="bg-transparent text-[#F2F2F2] placeholder-[#6F6F6F] focus:outline-none w-full text-xs"
+            />
+          </div>
+
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] bg-[#1F1F1F] border border-[#333333] text-[11px] text-[#22C993] font-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#22C993]"></span>
+            System Live
+          </div>
+
+          <button className="p-1.5 text-[#9A9A9A] hover:text-[#F2F2F2] rounded-[3px] hover:bg-[#1F1F1F] transition-colors border border-transparent hover:border-[#333333]">
             <Bell className="w-4 h-4" />
           </button>
-          <div className="w-8 h-8 rounded-full bg-nero-soft text-nero-deep flex items-center justify-center font-bold text-xs border border-nero-green/20">
-            <User className="w-4 h-4" />
+
+          {/* User Profile Pill */}
+          <div className="flex items-center gap-2 bg-[#1F1F1F] border border-[#333333] pl-2 pr-2.5 py-1 rounded-[3px]">
+            <div className="w-5 h-5 rounded-[2px] bg-[#078A62] text-[#F2F2F2] flex items-center justify-center font-bold text-[10px]">
+              {userName.charAt(0)}
+            </div>
+            <span className="text-xs font-semibold text-[#F2F2F2]">{userName}</span>
+            <button
+              onClick={handleLogout}
+              title="Log out"
+              className="ml-1 text-[#6F6F6F] hover:text-[#D95C5C] transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Main Dashboard Layout */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 gap-8">
+      {/* Main Body Layout: Sidebar + Content */}
+      <div className="flex-1 flex max-w-[1800px] w-full mx-auto">
         {/* Left Sidebar Menu */}
-        <aside className="w-64 shrink-0 hidden md:block">
-          <div className="bg-white border border-nero-border rounded-2xl p-4 shadow-card space-y-2 sticky top-20">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-nero-text-muted px-3 py-1">
-              NERO AI DASHBOARD
+        <aside className="w-56 shrink-0 bg-[#191919] border-r border-[#333333] p-3 flex flex-col justify-between hidden md:flex">
+          <div className="space-y-4">
+            <div className="px-2 pt-1">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6F6F6F]">
+                NAVIGATION
+              </span>
             </div>
-            <nav className="space-y-1">
+
+            <nav className="space-y-0.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <NavLink
                     key={item.to}
                     to={item.to}
+                    end={item.exact}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                      `flex items-center gap-2.5 px-2.5 py-2 rounded-[3px] text-xs font-medium transition-all ${
                         isActive
-                          ? "bg-nero-soft text-nero-deep font-semibold"
-                          : "text-nero-text-secondary hover:bg-nero-soft-bg hover:text-nero-text"
+                          ? "bg-[#1F1F1F] text-[#F2F2F2] border-l-2 border-[#078A62]"
+                          : "text-[#9A9A9A] hover:bg-[#1F1F1F] hover:text-[#F2F2F2]"
                       }`
                     }
                   >
-                    <Icon className="w-4 h-4 shrink-0" />
+                    <Icon className="w-4 h-4 shrink-0 text-[#9A9A9A]" />
                     <span>{item.label}</span>
                   </NavLink>
                 );
               })}
             </nav>
+          </div>
 
-            <div className="pt-4 border-t border-nero-border mt-4">
-              <Link
-                to="/"
-                className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-nero-text-muted hover:text-nero-text transition-colors"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to Homepage
-              </Link>
+          <div className="pt-3 border-t border-[#333333] text-[11px] font-mono text-[#6F6F6F] px-2 space-y-1">
+            <div className="flex items-center justify-between">
+              <span>Nero Engine</span>
+              <span className="text-[#22C993]">v2.4</span>
             </div>
           </div>
         </aside>
 
-        {/* Content Outlet */}
-        <main className="flex-1 min-w-0">
+        {/* Main Content Area */}
+        <main className="flex-1 p-5 sm:p-6 lg:p-8 overflow-y-auto bg-[#151515]">
           <Outlet />
         </main>
       </div>

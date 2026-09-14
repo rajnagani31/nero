@@ -1,101 +1,102 @@
 import React from "react";
-import { BarChart2, TrendingUp, ShieldCheck, Zap, GitPullRequest, Activity } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { BarChart2, TrendingUp, ShieldCheck, Zap, Activity } from "lucide-react";
 
 export const AnalyticsPage: React.FC = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-nero-text">Engineering Analytics & Quality Insights</h1>
-        <p className="text-sm text-nero-text-secondary mt-1">
-          Monitor pull request velocity, code quality signals, and repository risk distribution.
-        </p>
+    <div className="space-y-5 animate-fade-in font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1F1F1F] border border-[#333333] p-4 rounded-[3px]">
+        <div>
+          <h1 className="text-lg font-bold tracking-tight text-[#F2F2F2]">
+            Engineering Quality & Velocity Analytics
+          </h1>
+          <p className="text-xs text-[#9A9A9A] mt-0.5">
+            Monitor pull request velocity, code quality signals, and repository risk distribution.
+          </p>
+        </div>
+        <span className="text-xs font-mono text-[#22C993]">● Real-time Metrics</span>
       </div>
 
       {/* Top Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card variant="default" className="p-5 space-y-2">
-          <div className="flex items-center justify-between text-xs text-nero-text-muted font-medium">
-            <span>PR Review Velocity</span>
-            <TrendingUp className="w-4 h-4 text-nero-green" />
+        <div className="bg-[#1F1F1F] border border-[#333333] rounded-[3px] p-4 space-y-2">
+          <div className="flex items-center justify-between text-xs text-[#6F6F6F] font-mono">
+            <span>PR REVIEW VELOCITY</span>
+            <TrendingUp className="w-3.5 h-3.5 text-[#22C993]" />
           </div>
-          <div className="text-2xl font-extrabold text-nero-text">4.2x</div>
-          <p className="text-xs text-nero-green font-medium">+28% faster than last month</p>
-        </Card>
+          <div className="text-2xl font-extrabold text-[#F2F2F2]">4.2x</div>
+          <p className="text-xs text-[#22C993] font-medium">+28% faster than last month</p>
+        </div>
 
-        <Card variant="default" className="p-5 space-y-2">
-          <div className="flex items-center justify-between text-xs text-nero-text-muted font-medium">
-            <span>Bugs & Risks Caught</span>
-            <ShieldCheck className="w-4 h-4 text-nero-green" />
+        <div className="bg-[#1F1F1F] border border-[#333333] rounded-[3px] p-4 space-y-2">
+          <div className="flex items-center justify-between text-xs text-[#6F6F6F] font-mono">
+            <span>RISKS CAUGHT</span>
+            <ShieldCheck className="w-3.5 h-3.5 text-[#22C993]" />
           </div>
-          <div className="text-2xl font-extrabold text-nero-text">148</div>
-          <p className="text-xs text-nero-text-secondary">0 breaking API changes leaked</p>
-        </Card>
+          <div className="text-2xl font-extrabold text-[#F2F2F2]">148</div>
+          <p className="text-xs text-[#9A9A9A]">0 breaking API changes leaked</p>
+        </div>
 
-        <Card variant="default" className="p-5 space-y-2">
-          <div className="flex items-center justify-between text-xs text-nero-text-muted font-medium">
-            <span>Codebase Health Score</span>
-            <Activity className="w-4 h-4 text-nero-green" />
+        <div className="bg-[#1F1F1F] border border-[#333333] rounded-[3px] p-4 space-y-2">
+          <div className="flex items-center justify-between text-xs text-[#6F6F6F] font-mono">
+            <span>CODEBASE HEALTH</span>
+            <Activity className="w-3.5 h-3.5 text-[#22C993]" />
           </div>
-          <div className="text-2xl font-extrabold text-nero-green">96/100</div>
-          <p className="text-xs text-nero-text-secondary">14 repositories indexed</p>
-        </Card>
+          <div className="text-2xl font-extrabold text-[#22C993]">96/100</div>
+          <p className="text-xs text-[#9A9A9A]">14 repositories indexed</p>
+        </div>
 
-        <Card variant="default" className="p-5 space-y-2">
-          <div className="flex items-center justify-between text-xs text-nero-text-muted font-medium">
-            <span>AI Review Efficiency</span>
-            <Zap className="w-4 h-4 text-nero-green" />
+        <div className="bg-[#1F1F1F] border border-[#333333] rounded-[3px] p-4 space-y-2">
+          <div className="flex items-center justify-between text-xs text-[#6F6F6F] font-mono">
+            <span>AI REVIEW SPEED</span>
+            <Zap className="w-3.5 h-3.5 text-[#22C993]" />
           </div>
-          <div className="text-2xl font-extrabold text-nero-text">1.2s</div>
-          <p className="text-xs text-nero-text-secondary">Avg response per PR diff</p>
-        </Card>
+          <div className="text-2xl font-extrabold text-[#F2F2F2]">1.2s</div>
+          <p className="text-xs text-[#9A9A9A]">Avg response per PR diff</p>
+        </div>
       </div>
 
       {/* Main Analytics Graphs Section */}
-      <Card variant="default" className="p-6 space-y-6">
-        <div className="flex items-center justify-between border-b border-nero-border pb-4">
-          <div>
-            <h3 className="font-bold text-base text-nero-text">Pull Request Activity & Review Breakdown</h3>
-            <p className="text-xs text-nero-text-secondary">Weekly distribution of automated vs human-approved reviews</p>
-          </div>
-          <Badge variant="green">Live Analytics</Badge>
+      <div className="bg-[#1F1F1F] border border-[#333333] rounded-[3px] overflow-hidden">
+        <div className="px-4 py-3 border-b border-[#333333] flex items-center justify-between">
+          <span className="text-xs font-mono uppercase tracking-wider text-[#F2F2F2]">
+            PR REVIEW AUTOMATION COVERAGE
+          </span>
+          <span className="text-[11px] font-mono text-[#22C993]">92% Automated</span>
         </div>
 
-        {/* Mock Chart Visual */}
-        <div className="space-y-4 font-mono text-xs">
+        <div className="p-5 space-y-4 font-mono text-xs">
           <div className="space-y-2">
-            <div className="flex justify-between text-neutral-600">
-              <span>PR Review Automation Coverage</span>
-              <span className="font-bold text-nero-text">92% Automated</span>
+            <div className="flex justify-between text-[#9A9A9A]">
+              <span>Automation vs Human Review</span>
+              <span className="font-bold text-[#F2F2F2]">92% Automated</span>
             </div>
-            <div className="w-full h-3 rounded-full bg-nero-soft-bg overflow-hidden flex">
-              <div className="bg-nero-green h-full w-[92%]"></div>
-              <div className="bg-neutral-300 h-full w-[8%]"></div>
+            <div className="w-full h-2.5 rounded-[1px] bg-[#151515] border border-[#333333] overflow-hidden flex">
+              <div className="bg-[#078A62] h-full w-[92%]"></div>
+              <div className="bg-[#333333] h-full w-[8%]"></div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            <div className="bg-nero-soft-bg p-4 rounded-xl border border-nero-border space-y-1">
-              <span className="text-xs text-nero-text-muted font-sans font-medium">High Risk Changes</span>
-              <div className="text-lg font-bold text-amber-600">4 Flagged</div>
-              <p className="text-[11px] text-nero-text-secondary font-sans">Requires HITL confirmation</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3">
+            <div className="bg-[#151515] p-3.5 rounded-[2px] border border-[#333333] space-y-1">
+              <span className="text-xs text-[#6F6F6F]">High Risk Changes</span>
+              <div className="text-lg font-bold text-[#D9A441]">4 Flagged</div>
+              <p className="text-[11px] text-[#9A9A9A]">Requires HITL confirmation</p>
             </div>
 
-            <div className="bg-nero-soft-bg p-4 rounded-xl border border-nero-border space-y-1">
-              <span className="text-xs text-nero-text-muted font-sans font-medium">Clean Approvals</span>
-              <div className="text-lg font-bold text-nero-green">144 Approved</div>
-              <p className="text-[11px] text-nero-text-secondary font-sans">Zero critical risks</p>
+            <div className="bg-[#151515] p-3.5 rounded-[2px] border border-[#333333] space-y-1">
+              <span className="text-xs text-[#6F6F6F]">Clean Approvals</span>
+              <div className="text-lg font-bold text-[#22C993]">144 Approved</div>
+              <p className="text-[11px] text-[#9A9A9A]">Zero critical risks</p>
             </div>
 
-            <div className="bg-nero-soft-bg p-4 rounded-xl border border-nero-border space-y-1">
-              <span className="text-xs text-nero-text-muted font-sans font-medium">Auto Fixes Applied</span>
-              <div className="text-lg font-bold text-nero-text">38 Patches</div>
-              <p className="text-[11px] text-nero-text-secondary font-sans">Accepted by authors</p>
+            <div className="bg-[#151515] p-3.5 rounded-[2px] border border-[#333333] space-y-1">
+              <span className="text-xs text-[#6F6F6F]">Auto Fixes Applied</span>
+              <div className="text-lg font-bold text-[#F2F2F2]">38 Patches</div>
+              <p className="text-[11px] text-[#9A9A9A]">Accepted by authors</p>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

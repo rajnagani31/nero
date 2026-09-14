@@ -1,56 +1,60 @@
 import React from "react";
-import { Settings, Key, Shield, Webhook, Check } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Key, Webhook } from "lucide-react";
 
 export const SettingsPage: React.FC = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-nero-text">Settings & Integrations</h1>
-        <p className="text-sm text-nero-text-secondary mt-1">
-          Configure GitHub App webhooks, LLM provider API keys, and workspace permissions.
-        </p>
+    <div className="space-y-5 animate-fade-in font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1F1F1F] border border-[#333333] p-4 rounded-[3px]">
+        <div>
+          <h1 className="text-lg font-bold tracking-tight text-[#F2F2F2]">
+            Settings & Integrations
+          </h1>
+          <p className="text-xs text-[#9A9A9A] mt-0.5">
+            Configure GitHub App webhooks, REST API keys, and workspace permissions.
+          </p>
+        </div>
+        <span className="text-xs font-mono text-[#22C993]">● Webhook Active</span>
       </div>
 
-      {/* GitHub Integration */}
-      <Card variant="default" className="p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-nero-border pb-3">
+      {/* GitHub Integration Card */}
+      <div className="bg-[#1F1F1F] border border-[#333333] rounded-[3px] p-5 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#333333] pb-3">
           <div className="flex items-center gap-3">
-            <Webhook className="w-5 h-5 text-nero-green" />
+            <Webhook className="w-4 h-4 text-[#078A62]" />
             <div>
-              <h3 className="font-bold text-sm text-nero-text">GitHub App Integration</h3>
-              <p className="text-xs text-nero-text-secondary">Webhook endpoint for PR events</p>
+              <h3 className="font-bold text-sm text-[#F2F2F2]">GitHub App Webhook Endpoint</h3>
+              <p className="text-xs text-[#9A9A9A]">Receives PR diff events for reasoning</p>
             </div>
           </div>
-          <Badge variant="green">Connected</Badge>
+          <span className="px-2 py-0.5 rounded-[2px] bg-[#22C993]/10 text-[#22C993] border border-[#22C993]/30 text-[10px] font-mono font-bold">
+            CONNECTED
+          </span>
         </div>
 
-        <div className="space-y-3 font-mono text-xs">
-          <div>
-            <label className="text-neutral-500 block mb-1">Webhook Secret URL</label>
-            <input
-              type="text"
-              readOnly
-              value="https://api.nero.ai/api/v1/github/webhook"
-              className="w-full bg-nero-soft-bg border border-nero-border rounded-lg p-2.5 text-nero-text"
-            />
-          </div>
+        <div className="space-y-2 font-mono text-xs">
+          <label className="text-[#6F6F6F] block">Webhook Target URL</label>
+          <input
+            type="text"
+            readOnly
+            value="https://api.nero.ai/api/v1/github/webhook"
+            className="w-full bg-[#151515] border border-[#333333] rounded-[2px] p-2.5 text-[#F2F2F2]"
+          />
         </div>
-      </Card>
+      </div>
 
-      {/* API Keys */}
-      <Card variant="default" className="p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-nero-border pb-3">
+      {/* API Keys Card */}
+      <div className="bg-[#1F1F1F] border border-[#333333] rounded-[3px] p-5 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#333333] pb-3">
           <div className="flex items-center gap-3">
-            <Key className="w-5 h-5 text-nero-green" />
+            <Key className="w-4 h-4 text-[#078A62]" />
             <div>
-              <h3 className="font-bold text-sm text-nero-text">NeroAI API Key</h3>
-              <p className="text-xs text-nero-text-secondary">Bearer token for REST API integration</p>
+              <h3 className="font-bold text-sm text-[#F2F2F2]">NeroAI Bearer Token</h3>
+              <p className="text-xs text-[#9A9A9A]">API key for CI/CD integration</p>
             </div>
           </div>
-          <Button variant="outline" size="sm">Generate New Key</Button>
+          <button className="px-3 py-1 rounded-[3px] bg-[#151515] border border-[#333333] text-[#F2F2F2] hover:bg-[#242424] text-xs font-mono">
+            Generate Key
+          </button>
         </div>
 
         <div className="font-mono text-xs">
@@ -58,10 +62,10 @@ export const SettingsPage: React.FC = () => {
             type="password"
             readOnly
             value="nero_live_sk_9482019482019482019482"
-            className="w-full bg-nero-soft-bg border border-nero-border rounded-lg p-2.5 text-nero-text"
+            className="w-full bg-[#151515] border border-[#333333] rounded-[2px] p-2.5 text-[#F2F2F2]"
           />
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

@@ -116,7 +116,7 @@ class CodeReviewRepository:
 
             if payload.get("action") == "deleted":
                 for repository_data in repositories:
-                    self.mark_repository_inactive(session, repository_data.get("id"))
+                    self.mark_repository_deleted(session, repository_data.get("id"))
 
             session.commit()
             return saved_repositories
@@ -163,7 +163,7 @@ class CodeReviewRepository:
                 repo_id=data.repo_id,
                 installation_id=data.installation_id,
                 github_account_id=data.github_account_id,
-                user_id=1,  # TODO : Still need set Auth service
+                user_id=data.user_id,  # TODO : Still need set Auth service
                 full_name=data.full_name,
                 owner=data.owner,
                 default_branch=data.default_branch,
@@ -185,11 +185,12 @@ class CodeReviewRepository:
         *,
         installation_id: int | None,
         github_account_id: int | None,
+        user_id: int | None = None,
     ):
         repo_id = repository_data.get("id")
         pr_repo = session.execute(
             select(Repository).where(
-                Repository.repo_id == repo_id, Repository.is_active == True
+                Repository.repo_id == repo_id
             )
         ).scalar_one_or_none()
 
@@ -198,31 +199,80 @@ class CodeReviewRepository:
             owner_data.get("login")
             or repository_data.get("full_name", "").split("/")[0]
         )
+        is_private = repository_data.get("private", False)
 
         if pr_repo:
             self._update_repository_metadata(
                 pr_repo,
                 installation_id=installation_id,
                 github_account_id=github_account_id,
+                user_id=user_id,
                 full_name=repository_data.get("full_name"),
                 owner=owner,
                 default_branch=repository_data.get("default_branch"),
+                is_private=is_private,
             )
+            pr_repo.is_active = True
             return pr_repo
 
         pr_repo = Repository(
             repo_id=repo_id,
             installation_id=installation_id,
             github_account_id=github_account_id,
-            user_id=1,  # TODO: connect to authenticated owner when onboarding exists.
+            user_id=user_id if user_id is not None else None,
             full_name=repository_data.get("full_name"),
             owner=owner,
             default_branch=repository_data.get("default_branch"),
+            is_private=is_private,
             is_active=True,
         )
         session.add(pr_repo)
         session.flush()
         return pr_repo
+
+    def sync_user_installation_repositories(
+        self,
+        repositories_data: list[dict],
+        *,
+        installation_id: int,
+        user_id: int,
+    ) -> list[Repository]:
+        session = self.session_factory()
+        try:
+            saved_repositories = []
+            for repo_data in repositories_data:
+                saved_repositories.append(
+                    self.upsert_repository_from_github(
+                        session,
+                        repo_data,
+                        installation_id=installation_id,
+                        github_account_id=(repo_data.get("owner") or {}).get("id"),
+                        user_id=user_id,
+                    )
+                )
+            session.commit()
+            for repo in saved_repositories:
+                session.refresh(repo)
+            return saved_repositories
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def get_user_repositories(self, user_id: int) -> list[Repository]:
+        session = self.session_factory()
+        try:
+            return list(
+                session.execute(
+                    select(Repository).where(
+                        Repository.user_id == user_id,
+                        Repository.is_active == True,
+                    ).order_by(Repository.full_name)
+                ).scalars().all()
+            )
+        finally:
+            session.close()
 
     def mark_repository_inactive(self, session, repo_id: int | None) -> None:
         if repo_id is None:
@@ -235,26 +285,43 @@ class CodeReviewRepository:
         if pr_repo:
             pr_repo.is_active = False
 
+    def mark_repository_deleted(self, session, repo_id: int | None) -> None:
+        if repo_id is None:
+            return
+
+        pr_repo = session.execute(
+            select(Repository).where(Repository.repo_id == repo_id)
+        ).scalar_one_or_none()
+
+        if pr_repo:
+            pr_repo.is_deleted = True
+
     def _update_repository_metadata(
         self,
         repository: Repository,
         *,
         installation_id: int | None = None,
         github_account_id: int | None = None,
+        user_id: int | None = None,
         full_name: str | None = None,
         owner: str | None = None,
         default_branch: str | None = None,
+        is_private: bool | None = None,
     ) -> None:
         if installation_id is not None:
             repository.installation_id = installation_id
         if github_account_id is not None:
             repository.github_account_id = github_account_id
+        if user_id is not None:
+            repository.user_id = user_id
         if full_name:
             repository.full_name = full_name
         if owner:
             repository.owner = owner
         if default_branch:
             repository.default_branch = default_branch
+        if is_private is not None:
+            repository.is_private = is_private
 
     def get_pull_request(self, session, repo_id, pr_number):
         try:

@@ -52,6 +52,7 @@ AUTO_CREATE_SCHEMA = os.getenv("AUTO_CREATE_SCHEMA", "false").lower() == "true"
 AUTO_MIGRATE_LEGACY_AUTH_SCHEMA = (
     os.getenv("AUTO_MIGRATE_LEGACY_AUTH_SCHEMA", "true").lower() == "true"
 )
+GITHUB_APP_SLUG = os.getenv("GITHUB_APP_SLUG")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(

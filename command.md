@@ -18,6 +18,15 @@ uv run celery -A apps.backend.bot.application.core.celery:celery_app worker --lo
 uv run celery -A apps.backend.bot.application.core.celery:celery_app worker --loglevel=INFO --pool=threads --concurrency=4
 ```
 
+# alembic
+```bash
+# Run migrations
+alembic upgrade head
+
+# Create a new migration
+alembic revision --autogenerate -m "migration message"
+```
+
 
 # Docker Commands Cheat Sheet
 
