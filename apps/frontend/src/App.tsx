@@ -12,6 +12,8 @@ import { PRReviewsPage } from "@/pages/nero/PRReviewsPage";
 import { SettingsPage } from "@/pages/nero/SettingsPage";
 import { LoginPage } from "@/pages/auth/LoginPage";
 import { SignupPage } from "@/pages/auth/SignupPage";
+import { GithubCallbackPage } from "@/pages/auth/GithubCallbackPage";
+import { HealthNeroPage } from "@/pages/nero/HealthNeroPage";
 
 export const App: React.FC = () => {
   return (
@@ -25,6 +27,12 @@ export const App: React.FC = () => {
 
         {/* Codebot Interactive Chat & Workspace */}
         <Route path="/codebot" element={<CodebotPage />} />
+
+        {/* GitHub App Installation Callback Route */}
+        <Route path="/github/callback" element={<GithubCallbackPage />} />
+
+        {/* NeroAI Backend Health Check Route */}
+        <Route path="/health-neroai" element={<HealthNeroPage />} />
 
         {/* Main Product / Dashboard Suite */}
         <Route path="/dashboard" element={<NeroLayout />}>

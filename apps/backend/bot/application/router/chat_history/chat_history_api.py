@@ -23,6 +23,7 @@ def create_thread(
     current_user = Depends(get_current_user_from_db),
     chat_service: ChatService = Depends(get_chat_service),
 ):
+    # print("[request]", request.url)
     """This api create a new thread when use click new chat then add title and content history"""
     thread = chat_service.create_thread(
         user_id=current_user.id,
@@ -47,6 +48,7 @@ def list_threads(
     chat_service: ChatService = Depends(get_chat_service),
 ):
     """ Look Thread content in sidebare"""
+    
     return [ThreadSummaryResponse(**thread) for thread in chat_service.list_threads(user_id=current_user.id)]
 
 

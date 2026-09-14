@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { setAuthToken } from "@/utils/auth";
 
 export const SignupPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -41,9 +42,10 @@ export const SignupPage: React.FC = () => {
       const data = await res.json();
       const token = data.access_token || data.token;
       if (token) {
-        window.localStorage.setItem("codebot_access_token", token);
+        setAuthToken(token);
       }
-      navigate("/dashboard");
+      const redirectParam = new URLSearchParams(window.location.search).get("redirect");
+      navigate(redirectParam ? decodeURIComponent(redirectParam) : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed.");
     } finally {

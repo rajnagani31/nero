@@ -50,18 +50,25 @@ class GitHubInstallationTokenService:
         return token
 
     async def _get_cached_installation_token(self, installation_id: int) -> str | None:
-        client = redis.from_url(config.REDIS_URL, decode_responses=True)
         try:
-            return await client.get(self._cache_key(installation_id))
-        finally:
-            await client.aclose()
+            client = redis.from_url(config.REDIS_URL, decode_responses=True)
+            try:
+                return await client.get(self._cache_key(installation_id))
+            finally:
+                await client.aclose()
+        except Exception as exc:
+            print(f"[Redis Warning] Failed to fetch cached token: {exc}")
+            return None
 
     async def _cache_installation_token(self, installation_id: int, token: str) -> None:
-        client = redis.from_url(config.REDIS_URL, decode_responses=True)
         try:
-            await client.set(self._cache_key(installation_id), token, ex=55 * 60)
-        finally:
-            await client.aclose()
+            client = redis.from_url(config.REDIS_URL, decode_responses=True)
+            try:
+                await client.set(self._cache_key(installation_id), token, ex=55 * 60)
+            finally:
+                await client.aclose()
+        except Exception as exc:
+            print(f"[Redis Warning] Failed to cache token: {exc}")
 
     @staticmethod
     def _cache_key(installation_id: int) -> str:
