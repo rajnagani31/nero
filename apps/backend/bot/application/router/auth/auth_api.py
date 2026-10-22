@@ -83,6 +83,9 @@ def login(
         )
     except AuthError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as exc:
+        print(f"[Login Error] Unexpected exception during login: {exc}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Login failed: {str(exc)}") from exc
 
     auth_service.apply_session_cookies(response, session)
     return build_session_response(session)

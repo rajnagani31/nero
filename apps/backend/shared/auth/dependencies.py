@@ -39,6 +39,7 @@ async def get_current_user_from_token(
 ) -> UserPrincipal:
     token = extract_token_from_request(request, credentials)
     if not token:
+        print("[Auth Error] 401 Unauthorized: Authorization token missing from headers & cookies")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization token missing",
@@ -48,6 +49,7 @@ async def get_current_user_from_token(
     try:
         payload = decode_access_token(token)
     except AuthException as exc:
+        print(f"[Auth Error] 401 Unauthorized: {exc.message}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=exc.message,

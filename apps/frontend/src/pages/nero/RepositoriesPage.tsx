@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FolderGit2, Plus, RefreshCw, Lock, Globe, Power, Check, Shield } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { authFetch } from "@/utils/auth";
 
 interface RepositoryItem {
   id: number;
@@ -13,12 +15,13 @@ interface RepositoryItem {
 }
 
 export const RepositoriesPage: React.FC = () => {
+  const navigate = useNavigate();
   const [repositories, setRepositories] = useState<RepositoryItem[]>([
     {
       id: 1,
       repo_id: 101,
-      full_name: "nero/checkout-service",
-      owner: "nero",
+      full_name: "nero-team/codebot-core",
+      owner: "nero-team",
       default_branch: "main",
       is_private: true,
       is_active: true,
@@ -26,8 +29,8 @@ export const RepositoriesPage: React.FC = () => {
     {
       id: 2,
       repo_id: 102,
-      full_name: "nero/auth-service",
-      owner: "nero",
+      full_name: "nero-team/nero-web-client",
+      owner: "nero-team",
       default_branch: "main",
       is_private: true,
       is_active: true,
@@ -35,7 +38,7 @@ export const RepositoriesPage: React.FC = () => {
     {
       id: 3,
       repo_id: 103,
-      full_name: "nero/frontend-web",
+      full_name: "nero/analytics-engine",
       owner: "nero",
       default_branch: "main",
       is_private: false,
@@ -51,10 +54,11 @@ export const RepositoriesPage: React.FC = () => {
   const fetchRepositories = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem("codebot_access_token");
-      const res = await fetch("/api/github/repositories", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await authFetch("/api/github/repositories");
+      if (res.status === 401) {
+        navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         if (data.repositories && data.repositories.length > 0) {
@@ -70,10 +74,11 @@ export const RepositoriesPage: React.FC = () => {
 
   const handleConnect = async () => {
     try {
-      const token = localStorage.getItem("codebot_access_token");
-      const res = await fetch("/api/github/install", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await authFetch("/api/github/install");
+      if (res.status === 401) {
+        navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         if (data.url) {
@@ -81,9 +86,9 @@ export const RepositoriesPage: React.FC = () => {
           return;
         }
       }
-      window.location.href = "https://github.com/apps/nero-ai-dev/installations/new";
+      window.location.href = "https://github.com/apps/nero-review-dev/installations/new";
     } catch {
-      window.location.href = "https://github.com/apps/nero-ai-dev/installations/new";
+      window.location.href = "https://github.com/apps/nero-review-dev/installations/new";
     }
   };
 

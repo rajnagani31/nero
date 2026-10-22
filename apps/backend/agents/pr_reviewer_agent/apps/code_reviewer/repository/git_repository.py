@@ -46,6 +46,7 @@ class CodeReviewRepository:
 
                 pr = PullRequest(
                     repo_id=repo.id,
+                    user_id=repo.user_id,
                     pr_number=pr_data.pr_number,
                     commit_sha=pr_data.commit_sha,
                     author=pr_data.author,
@@ -100,6 +101,17 @@ class CodeReviewRepository:
             )
             repositories_removed = payload.get("repositories_removed") or []
 
+            existing_user_id = None
+            if installation_id:
+                existing_user_id = session.execute(
+                    select(Repository.user_id)
+                    .where(
+                        Repository.installation_id == installation_id,
+                        Repository.user_id.isnot(None),
+                    )
+                    .limit(1)
+                ).scalar_one_or_none()
+
             saved_repositories = []
             for repository_data in repositories:
                 saved_repositories.append(
@@ -108,6 +120,7 @@ class CodeReviewRepository:
                         repository_data,
                         installation_id=installation_id,
                         github_account_id=github_account_id,
+                        user_id=existing_user_id,
                     )
                 )
 

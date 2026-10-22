@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { authFetch } from "@/utils/auth";
 import {
   GitPullRequest,
   CheckCircle2,
@@ -29,38 +30,26 @@ export const DashboardOverviewPage: React.FC = () => {
   const [timeframe, setTimeframe] = useState<"7D" | "30D" | "90D">("30D");
 
   useEffect(() => {
-    try {
-      const token = localStorage.getItem("codebot_access_token");
-      if (token) {
-        fetch("/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((res) => (res.ok ? res.json() : null))
-          .then((data) => {
-            if (data) {
-              const rawName =
-                data.display_name ||
-                data.name ||
-                (typeof data.email === "string" ? data.email.split("@")[0] : null) ||
-                "Raj";
-              const formatted = String(rawName);
-              setUserName(formatted.charAt(0).toUpperCase() + formatted.slice(1));
-            }
-          })
-          .catch(() => {});
-      }
-    } catch {
-      // Safe fallback stays "Raj"
-    }
+    authFetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          const rawName =
+            data.display_name ||
+            data.name ||
+            (typeof data.email === "string" ? data.email.split("@")[0] : null) ||
+            "Raj";
+          const formatted = String(rawName);
+          setUserName(formatted.charAt(0).toUpperCase() + formatted.slice(1));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleConnectRepo = async () => {
     setIsConnecting(true);
     try {
-      const token = localStorage.getItem("codebot_access_token");
-      const res = await fetch("/api/github/install", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await authFetch("/api/github/install");
       if (res.ok) {
         const data = await res.json();
         if (data.url) {
@@ -68,9 +57,9 @@ export const DashboardOverviewPage: React.FC = () => {
           return;
         }
       }
-      window.location.href = "https://github.com/apps/nero-ai-dev/installations/new";
+      window.location.href = "https://github.com/apps/nero-review-dev/installations/new";
     } catch {
-      window.location.href = "https://github.com/apps/nero-ai-dev/installations/new";
+      window.location.href = "https://github.com/apps/nero-review-dev/installations/new";
     } finally {
       setIsConnecting(false);
     }

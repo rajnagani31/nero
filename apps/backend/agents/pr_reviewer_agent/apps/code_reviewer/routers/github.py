@@ -38,6 +38,13 @@ def github_service():
     return CodeReviewRepository(SessionLocal)
 
 
+@router.get("/health-neroai")
+async def health_neroai_check(current_user = Depends(get_current_user_from_token)):
+    return {
+        "status": "success",
+        "data": current_user
+    }
+
 @router.post("/webhook/github")
 async def github_webhook(
     request: Request,
@@ -140,21 +147,25 @@ async def github_callback(
             installation_id
         )
     except GitHubAppConfigError as exc:
+        print(f"[GitHub Callback Error] Config error: {exc}")
         raise HTTPException(
             status_code=500,
             detail=f"GitHub App configuration error: {str(exc)}",
         ) from exc
     except httpx.HTTPStatusError as exc:
+        print(f"[GitHub Callback Error] HTTPStatusError: {exc.response.text}")
         raise HTTPException(
             status_code=exc.response.status_code if exc.response.status_code in (400, 401, 403, 404) else 502,
             detail=f"GitHub API error fetching repositories for installation {installation_id}: {exc.response.text}",
         ) from exc
     except httpx.RequestError as exc:
+        print(f"[GitHub Callback Error] RequestError: {exc}")
         raise HTTPException(
             status_code=503,
             detail="Network error communicating with GitHub API",
         ) from exc
     except Exception as exc:
+        print(f"[GitHub Callback Error] Unexpected exception: {exc}")
         raise HTTPException(
             status_code=500,
             detail=f"Error fetching installation repositories: {str(exc)}",
@@ -167,6 +178,7 @@ async def github_callback(
             user_id=current_user.id,
         )
     except Exception as exc:
+        print(f"[GitHub Callback Error] DB sync error: {exc}")
         raise HTTPException(
             status_code=500,
             detail=f"Failed to synchronize repositories in database: {str(exc)}",
