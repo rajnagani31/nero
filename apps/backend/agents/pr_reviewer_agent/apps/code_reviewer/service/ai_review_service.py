@@ -115,6 +115,7 @@ class AIReviewService:
             filename=filename,
             findings=[
                 {
+                    "file": filename,
                     "severity": "info",
                     "category": "other",
                     "title": "Dummy review placeholder",
@@ -122,9 +123,16 @@ class AIReviewService:
                         "This is a placeholder review generated locally for testing. "
                         "Replace it with the real AI review provider when configured."
                     ),
+                    "message": (
+                        "This is a placeholder review generated locally for testing. "
+                        "Replace it with the real AI review provider when configured."
+                    ),
                     "recommendation": "Wire the real OpenAI review service to replace this placeholder.",
+                    "suggestion": "Wire the real OpenAI review service to replace this placeholder.",
+                    "line": 1,
                     "line_start": 1,
                     "line_end": 1,
+                    "side": "RIGHT",
                 }
             ],
             summary=(
@@ -140,16 +148,33 @@ class AIReviewService:
             parsed["findings"] = []
             return parsed
 
+        filename = parsed.get("filename")
         for finding in findings:
             if not isinstance(finding, dict):
                 continue
             category = str(finding.get("category") or "other").lower()
             category = self.category_aliases.get(category, category)
             finding["category"] = category if category in self.allowed_categories else "other"
+            if not finding.get("file") and filename:
+                finding["file"] = filename
+            if not finding.get("side"):
+                finding["side"] = "RIGHT"
             if not finding.get("title"):
                 finding["title"] = "Review finding"
-            if not finding.get("summary"):
+            if not finding.get("summary") and finding.get("message"):
+                finding["summary"] = finding["message"]
+            elif not finding.get("summary"):
                 finding["summary"] = finding["title"]
+            if not finding.get("message") and finding.get("summary"):
+                finding["message"] = finding["summary"]
+            if not finding.get("recommendation") and finding.get("suggestion"):
+                finding["recommendation"] = finding["suggestion"]
+            elif not finding.get("suggestion") and finding.get("recommendation"):
+                finding["suggestion"] = finding["recommendation"]
+            if finding.get("line") is not None and finding.get("line_start") is None:
+                finding["line_start"] = finding["line"]
+            elif finding.get("line_start") is not None and finding.get("line") is None:
+                finding["line"] = finding["line_start"]
         return parsed
 
     def _build_prompt(self, *, filename: str, status: str, patch: str) -> str:

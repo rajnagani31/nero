@@ -399,6 +399,10 @@ class CodeReviewRepository:
             context["review_job_status"] = review_job.status
             context["base_sha"] = review_job.base_sha
             context["head_sha"] = review_job.head_sha
+            context["review_status"] = review_job.review_status
+            context["github_review_id"] = review_job.github_review_id
+            context["reviewed_commit_sha"] = review_job.reviewed_commit_sha
+            context["delivery_error"] = review_job.delivery_error
             return context
         finally:
             session.close()
@@ -555,3 +559,104 @@ class CodeReviewRepository:
             raise
         finally:
             session.close()
+
+    def get_review_job_by_id(self, review_job_id: int) -> ReviewJob | None:
+        session = self.session_factory()
+        try:
+            return session.execute(
+                select(ReviewJob).where(ReviewJob.id == review_job_id)
+            ).scalar_one_or_none()
+        finally:
+            session.close()
+
+    def get_posted_review_for_commit(
+        self, pr_id: int, commit_sha: str
+    ) -> ReviewJob | None:
+        session = self.session_factory()
+        try:
+            return session.execute(
+                select(ReviewJob)
+                .where(
+                    ReviewJob.pr_id == pr_id,
+                    ReviewJob.review_status == "REVIEW_POSTED",
+                    (
+                        (ReviewJob.reviewed_commit_sha == commit_sha)
+                        | (ReviewJob.head_sha == commit_sha)
+                    ),
+                    ReviewJob.github_review_id.isnot(None),
+                )
+                .order_by(ReviewJob.id.desc())
+                .limit(1)
+            ).scalar_one_or_none()
+        finally:
+            session.close()
+
+    def is_review_already_posted(self, pr_id: int, commit_sha: str) -> bool:
+        return self.get_posted_review_for_commit(pr_id, commit_sha) is not None
+
+    def mark_review_job_delivered(
+        self, review_job_id: int, github_review_id: int, commit_sha: str
+    ) -> None:
+        session = self.session_factory()
+        try:
+            session.execute(
+                update(ReviewJob)
+                .where(ReviewJob.id == review_job_id)
+                .values(
+                    review_status="REVIEW_POSTED",
+                    github_review_id=github_review_id,
+                    reviewed_commit_sha=commit_sha,
+                    delivery_error=None,
+                )
+            )
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def mark_review_job_delivery_failed(
+        self, review_job_id: int, error_message: str
+    ) -> None:
+        session = self.session_factory()
+        try:
+            session.execute(
+                update(ReviewJob)
+                .where(ReviewJob.id == review_job_id)
+                .values(
+                    review_status="DELIVERY_FAILED",
+                    delivery_error=error_message[:512],
+                )
+            )
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def mark_review_job_skipped_duplicate(
+        self,
+        review_job_id: int,
+        commit_sha: str,
+        existing_github_review_id: int | None = None,
+    ) -> None:
+        session = self.session_factory()
+        try:
+            session.execute(
+                update(ReviewJob)
+                .where(ReviewJob.id == review_job_id)
+                .values(
+                    review_status="SKIPPED_DUPLICATE",
+                    reviewed_commit_sha=commit_sha,
+                    github_review_id=existing_github_review_id,
+                )
+            )
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
