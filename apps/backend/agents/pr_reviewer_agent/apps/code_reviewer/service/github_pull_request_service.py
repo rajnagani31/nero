@@ -225,3 +225,13 @@ class GitHubInstallationService:
 
         return response.json()["repositories"]
 
+
+# Re-export GitHub review service and helper functions
+from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.service.github_review_service import (  # noqa: E402
+    GitHubReviewService,
+    GitHubReviewSubmissionError,
+    submit_pr_review,
+    submit_pr_review_sync,
+)
+
+
