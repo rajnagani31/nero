@@ -113,11 +113,42 @@ def format_inline_comment_body(finding: Any) -> str:
     return body
 
 
+def _extract_skipped_file_info(sf: Any) -> tuple[str | None, str]:
+    if isinstance(sf, FileReviewResult):
+        filename = sf.filename
+        reason = (
+            sf.summary
+            or (sf.metadata.get("reason") if isinstance(sf.metadata, dict) else None)
+            or "Skipped because GitHub did not provide a text patch."
+        )
+        return filename, reason
+    if isinstance(sf, dict):
+        filename = sf.get("filename") or sf.get("file")
+        metadata = sf.get("metadata")
+        meta_reason = metadata.get("reason") if isinstance(metadata, dict) else None
+        reason = (
+            sf.get("reason")
+            or sf.get("summary")
+            or meta_reason
+            or "Skipped because GitHub did not provide a text patch."
+        )
+        return filename, reason
+    if isinstance(sf, (list, tuple)) and len(sf) >= 2:
+        return str(sf[0]), str(sf[1])
+    if isinstance(sf, (list, tuple)) and len(sf) == 1:
+        return str(sf[0]), "Skipped because GitHub did not provide a text patch."
+    if isinstance(sf, str):
+        return sf, "Skipped because GitHub did not provide a text patch."
+    return None, str(sf)
+
+
 def generate_review_summary(
     *,
     findings: Sequence[Any],
     unmapped_findings: Sequence[Any] | None = None,
     files_reviewed: int = 0,
+    files_skipped: int = 0,
+    skipped_files: Sequence[Any] | None = None,
     overall_status: str | None = None,
 ) -> str:
     """Generate a clean, deterministic Markdown summary for the GitHub PR review."""
@@ -134,6 +165,10 @@ def generate_review_summary(
     low_count = severity_counts.get("low", 0)
     info_count = severity_counts.get("info", 0)
 
+    # Determine files skipped count if skipped_files provided
+    if files_skipped == 0 and skipped_files:
+        files_skipped = len(skipped_files)
+
     # Determine PR-level review outcome
     if overall_status:
         summary_title = overall_status
@@ -144,6 +179,18 @@ def generate_review_summary(
     elif medium_count > 0 or low_count > 0:
         summary_title = "⚠️ **Warnings found**"
         summary_desc = "NeroAI found suggestions or potential issues to review."
+    elif files_skipped > 0:
+        summary_title = "⚠️ **Incomplete review**"
+        if files_reviewed == 0:
+            summary_desc = (
+                "Review incomplete: all files were skipped because GitHub supplied no text patch. "
+                "Please review changes manually."
+            )
+        else:
+            summary_desc = (
+                "Review incomplete: some files were skipped because GitHub supplied no text patch. "
+                "Please review unread changes manually."
+            )
     else:
         summary_title = "✅ **All clear**"
         summary_desc = "NeroAI found no issues. Everything looks good!"
@@ -175,6 +222,25 @@ def generate_review_summary(
         "### Files reviewed",
         "",
         str(files_reviewed),
+    ])
+
+    if files_skipped > 0 or skipped_files:
+        lines.extend([
+            "",
+            "### Files skipped",
+            "",
+            str(files_skipped),
+        ])
+        if skipped_files:
+            lines.append("")
+            for sf in skipped_files:
+                sf_file, sf_reason = _extract_skipped_file_info(sf)
+                if sf_file:
+                    lines.append(f"- `{sf_file}`: {sf_reason}")
+                else:
+                    lines.append(f"- {sf_reason}")
+
+    lines.extend([
         "",
         "### Result",
         "",
@@ -215,47 +281,75 @@ def generate_review_summary(
 
 def _normalize_findings_list(
     raw_findings: Any,
-) -> tuple[list[ReviewFindingDTO], int]:
+) -> tuple[list[ReviewFindingDTO], int, list[dict[str, Any]]]:
     """Normalize various representations of findings into a flat list of ReviewFindingDTOs.
 
-    Returns (findings_list, files_reviewed_count).
+    Returns (findings_list, files_reviewed_count, detected_skipped_files).
     """
     if raw_findings is None:
-        return [], 0
+        return [], 0, []
 
     if isinstance(raw_findings, FinalReviewResult):
         all_findings: list[ReviewFindingDTO] = []
+        skipped_list: list[dict[str, Any]] = []
         for file_res in raw_findings.files:
+            if file_res.skipped:
+                reason = (
+                    file_res.summary
+                    or (file_res.metadata.get("reason") if isinstance(file_res.metadata, dict) else None)
+                    or "Skipped because GitHub did not provide a text patch."
+                )
+                skipped_list.append({"filename": file_res.filename, "reason": reason})
             for f in file_res.findings:
                 if not f.file:
                     f.file = file_res.filename
                 all_findings.append(f)
-        return all_findings, raw_findings.reviewed_files
+        return all_findings, raw_findings.reviewed_files, skipped_list
 
     if isinstance(raw_findings, list):
         # Check if list contains FileReviewResult or dicts with files/findings
         all_findings = []
         files_set: set[str] = set()
+        skipped_list = []
         for item in raw_findings:
             if isinstance(item, FileReviewResult):
-                files_set.add(item.filename)
-                for f in item.findings:
-                    if not f.file:
-                        f.file = item.filename
-                    all_findings.append(f)
+                if item.skipped:
+                    reason = (
+                        item.summary
+                        or (item.metadata.get("reason") if isinstance(item.metadata, dict) else None)
+                        or "Skipped because GitHub did not provide a text patch."
+                    )
+                    skipped_list.append({"filename": item.filename, "reason": reason})
+                else:
+                    files_set.add(item.filename)
+                    for f in item.findings:
+                        if not f.file:
+                            f.file = item.filename
+                        all_findings.append(f)
             elif isinstance(item, dict) and "findings" in item and isinstance(item["findings"], list):
                 filename = item.get("filename")
-                if filename:
-                    files_set.add(filename)
-                for f_data in item["findings"]:
-                    dto = (
-                        ReviewFindingDTO.model_validate(f_data)
-                        if isinstance(f_data, dict)
-                        else f_data
+                if item.get("skipped"):
+                    meta = item.get("metadata")
+                    meta_reason = meta.get("reason") if isinstance(meta, dict) else None
+                    reason = (
+                        item.get("summary")
+                        or item.get("reason")
+                        or meta_reason
+                        or "Skipped because GitHub did not provide a text patch."
                     )
-                    if not dto.file and filename:
-                        dto.file = filename
-                    all_findings.append(dto)
+                    skipped_list.append({"filename": filename or "unknown", "reason": reason})
+                else:
+                    if filename:
+                        files_set.add(filename)
+                    for f_data in item["findings"]:
+                        dto = (
+                            ReviewFindingDTO.model_validate(f_data)
+                            if isinstance(f_data, dict)
+                            else f_data
+                        )
+                        if not dto.file and filename:
+                            dto.file = filename
+                        all_findings.append(dto)
             elif isinstance(item, ReviewFindingDTO):
                 if item.file:
                     files_set.add(item.file)
@@ -265,9 +359,9 @@ def _normalize_findings_list(
                 if dto.file:
                     files_set.add(dto.file)
                 all_findings.append(dto)
-        return all_findings, len(files_set)
+        return all_findings, len(files_set), skipped_list
 
-    return [], 0
+    return [], 0, []
 
 
 def prepare_review_payload(
@@ -277,6 +371,8 @@ def prepare_review_payload(
     summary: str | None = None,
     event: str = "COMMENT",
     files_reviewed_count: int | None = None,
+    files_skipped_count: int | None = None,
+    skipped_files: Sequence[Any] | None = None,
     file_patches: dict[str, str | None] | None = None,
     valid_diff_lines_map: dict[str, set[int]] | None = None,
 ) -> dict[str, Any]:
@@ -285,11 +381,21 @@ def prepare_review_payload(
     Separates findings into inline comments (mapped to changed lines in the diff)
     and unmapped/file-level findings (appended to the PR summary).
     """
-    normalized_findings, detected_files_count = _normalize_findings_list(findings)
+    normalized_findings, detected_files_count, detected_skipped = _normalize_findings_list(findings)
     files_count = (
         files_reviewed_count
         if files_reviewed_count is not None
         else detected_files_count
+    )
+    final_skipped_files = (
+        list(skipped_files)
+        if skipped_files is not None
+        else detected_skipped
+    )
+    skipped_count = (
+        files_skipped_count
+        if files_skipped_count is not None
+        else len(final_skipped_files)
     )
 
     diff_lines_map: dict[str, set[int]] = {}
@@ -345,6 +451,8 @@ def prepare_review_payload(
             findings=normalized_findings,
             unmapped_findings=unmapped_findings,
             files_reviewed=files_count,
+            files_skipped=skipped_count,
+            skipped_files=final_skipped_files,
             overall_status=summary,
         )
 
@@ -377,6 +485,8 @@ class GitHubReviewService:
         findings: Any = None,
         event: str = "COMMENT",
         files_reviewed_count: int | None = None,
+        files_skipped_count: int | None = None,
+        skipped_files: Sequence[Any] | None = None,
         file_patches: dict[str, str | None] | None = None,
         valid_diff_lines_map: dict[str, set[int]] | None = None,
     ) -> dict[str, Any]:
@@ -399,6 +509,8 @@ class GitHubReviewService:
             summary=summary,
             event=event,
             files_reviewed_count=files_reviewed_count,
+            files_skipped_count=files_skipped_count,
+            skipped_files=skipped_files,
             file_patches=file_patches,
             valid_diff_lines_map=valid_diff_lines_map,
         )
@@ -525,6 +637,8 @@ async def submit_pr_review(
     findings: Any = None,
     event: str = "COMMENT",
     files_reviewed_count: int | None = None,
+    files_skipped_count: int | None = None,
+    skipped_files: Sequence[Any] | None = None,
     file_patches: dict[str, str | None] | None = None,
     valid_diff_lines_map: dict[str, set[int]] | None = None,
     token_service: GitHubInstallationTokenService | None = None,
@@ -541,6 +655,8 @@ async def submit_pr_review(
         findings=findings,
         event=event,
         files_reviewed_count=files_reviewed_count,
+        files_skipped_count=files_skipped_count,
+        skipped_files=skipped_files,
         file_patches=file_patches,
         valid_diff_lines_map=valid_diff_lines_map,
     )
@@ -557,6 +673,8 @@ def submit_pr_review_sync(
     findings: Any = None,
     event: str = "COMMENT",
     files_reviewed_count: int | None = None,
+    files_skipped_count: int | None = None,
+    skipped_files: Sequence[Any] | None = None,
     file_patches: dict[str, str | None] | None = None,
     valid_diff_lines_map: dict[str, set[int]] | None = None,
     token_service: GitHubInstallationTokenService | None = None,
@@ -573,6 +691,8 @@ def submit_pr_review_sync(
             findings=findings,
             event=event,
             files_reviewed_count=files_reviewed_count,
+            files_skipped_count=files_skipped_count,
+            skipped_files=skipped_files,
             file_patches=file_patches,
             valid_diff_lines_map=valid_diff_lines_map,
             token_service=token_service,

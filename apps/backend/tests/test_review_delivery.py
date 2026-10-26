@@ -165,6 +165,51 @@ def test_successful_review_delivery(test_db_session_factory) -> None:
     assert updated_job.delivery_error is None
 
 
+def test_review_delivery_passes_skipped_files_and_count(test_db_session_factory) -> None:
+    repository = CodeReviewRepository(test_db_session_factory)
+    _, pr_id, job_id = _seed_test_pr_and_job(
+        test_db_session_factory, head_sha="commit_sha_skipped"
+    )
+
+    file_reviews = [
+        {
+            "filename": "src/reviewed.py",
+            "findings": [],
+            "summary": "Clean",
+            "skipped": False,
+            "metadata": {"patch": "@@ -1,2 +1,2 @@\n+ok\n"},
+        },
+        {
+            "filename": "docs/logo.png",
+            "findings": [],
+            "summary": "Skipped because GitHub did not provide a text patch.",
+            "skipped": True,
+            "metadata": {"reason": "missing_patch_or_binary"},
+        },
+    ]
+
+    mock_review_response = {"id": 77777, "commit_id": "commit_sha_skipped"}
+
+    with patch(
+        "apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.tasks.aggregate_review_task._repository",
+        return_value=repository,
+    ), patch(
+        "apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.tasks.aggregate_review_task.submit_pr_review",
+        new_callable=AsyncMock,
+    ) as mock_submit:
+        mock_submit.return_value = mock_review_response
+
+        aggregate_review(file_reviews, job_id)
+
+        assert mock_submit.called
+        submit_args = mock_submit.call_args[1]
+        assert submit_args["files_reviewed_count"] == 1
+        assert submit_args["files_skipped_count"] == 1
+        assert len(submit_args["skipped_files"]) == 1
+        assert submit_args["skipped_files"][0].filename == "docs/logo.png"
+        assert submit_args["skipped_files"][0].summary == "Skipped because GitHub did not provide a text patch."
+
+
 def test_duplicate_review_prevention(test_db_session_factory) -> None:
     repository = CodeReviewRepository(test_db_session_factory)
     _, pr_id, job_id_1 = _seed_test_pr_and_job(
@@ -235,6 +280,81 @@ def test_duplicate_review_prevention(test_db_session_factory) -> None:
         assert second_job.review_status == "SKIPPED_DUPLICATE"
         assert second_job.github_review_id == 123456
         assert second_job.reviewed_commit_sha == "commit_sha_duplicate"
+
+
+def test_replay_delivered_job_leaves_review_status_unchanged(test_db_session_factory) -> None:
+    """Verifies that replaying an already-delivered job leaves its REVIEW_POSTED status intact,
+
+    and subsequent replays or new jobs for the commit do not resubmit to GitHub.
+    """
+    repository = CodeReviewRepository(test_db_session_factory)
+    _, pr_id, job_id_1 = _seed_test_pr_and_job(
+        test_db_session_factory, head_sha="commit_sha_replay"
+    )
+
+    file_reviews = [
+        {
+            "filename": "src/app.py",
+            "findings": [],
+            "summary": "Reviewed app.py",
+            "skipped": False,
+            "metadata": {"patch": ""},
+        }
+    ]
+
+    mock_review_response = {"id": 88888, "commit_id": "commit_sha_replay"}
+
+    with patch(
+        "apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.tasks.aggregate_review_task._repository",
+        return_value=repository,
+    ), patch(
+        "apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.tasks.aggregate_review_task.submit_pr_review",
+        new_callable=AsyncMock,
+    ) as mock_submit:
+        mock_submit.return_value = mock_review_response
+
+        # 1. Initial run delivers review
+        aggregate_review(file_reviews, job_id_1)
+        assert mock_submit.call_count == 1
+
+        job_1 = repository.get_review_job_by_id(job_id_1)
+        assert job_1.review_status == "REVIEW_POSTED"
+        assert job_1.github_review_id == 88888
+
+        # 2. Replay the same delivered job
+        aggregate_review(file_reviews, job_id_1)
+        assert mock_submit.call_count == 1
+
+        # Delivered job must remain REVIEW_POSTED (not overwritten with SKIPPED_DUPLICATE)
+        job_1_after_replay = repository.get_review_job_by_id(job_id_1)
+        assert job_1_after_replay.review_status == "REVIEW_POSTED"
+        assert job_1_after_replay.github_review_id == 88888
+
+        # 3. Another replay or new job for same commit still respects the delivered review
+        session = test_db_session_factory()
+        job_2 = ReviewJob(
+            pr_id=pr_id,
+            status=ReviewJobStatusEnum.RUNNING,
+            head_sha="commit_sha_replay",
+            total_files=1,
+            processed_files=1,
+            queued_at=datetime.now(UTC),
+        )
+        session.add(job_2)
+        session.commit()
+        job_id_2 = job_2.id
+        session.close()
+
+        aggregate_review(file_reviews, job_id_2)
+        assert mock_submit.call_count == 1
+
+        job_2_record = repository.get_review_job_by_id(job_id_2)
+        assert job_2_record.review_status == "SKIPPED_DUPLICATE"
+        assert job_2_record.github_review_id == 88888
+
+        # Verify job 1 is STILL REVIEW_POSTED
+        job_1_final = repository.get_review_job_by_id(job_id_1)
+        assert job_1_final.review_status == "REVIEW_POSTED"
 
 
 def test_commit_specific_behavior(test_db_session_factory) -> None:

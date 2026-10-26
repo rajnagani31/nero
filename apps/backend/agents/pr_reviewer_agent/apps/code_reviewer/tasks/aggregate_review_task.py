@@ -66,6 +66,18 @@ def _deliver_github_pr_review(
     # Check for duplicate review for this PR commit
     posted_review = repository.get_posted_review_for_commit(pr_id, commit_sha)
     if posted_review is not None:
+        if posted_review.id == review_job_id:
+            logger.info(
+                "Review for commit was already delivered by this job. Leaving delivered job unchanged.",
+                extra={
+                    "review_job_id": review_job_id,
+                    "pr_id": pr_id,
+                    "commit_sha": commit_sha,
+                    "existing_review_id": posted_review.github_review_id,
+                },
+            )
+            return
+
         logger.info(
             "Review for commit has already been delivered to GitHub. Skipping duplicate review submission.",
             extra={
@@ -103,6 +115,8 @@ def _deliver_github_pr_review(
                 commit_sha=commit_sha,
                 findings=parsed_reviews,
                 files_reviewed_count=final_review.reviewed_files,
+                files_skipped_count=final_review.skipped_files,
+                skipped_files=[fr for fr in parsed_reviews if fr.skipped],
                 file_patches=file_patches,
                 valid_diff_lines_map=valid_diff_lines_map,
             )

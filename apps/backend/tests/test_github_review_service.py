@@ -143,6 +143,76 @@ def test_generate_review_summary_all_clear() -> None:
     assert "\n5\n" in summary
 
 
+def test_generate_review_summary_all_files_skipped_shows_incomplete_review() -> None:
+    skipped = [
+        {"filename": "app/binary.so", "reason": "Skipped because GitHub did not provide a text patch."},
+        {"filename": "docs/image.png", "reason": "Skipped because GitHub did not provide a text patch."},
+    ]
+    summary = generate_review_summary(
+        findings=[],
+        files_reviewed=0,
+        files_skipped=2,
+        skipped_files=skipped,
+    )
+    assert "✅ **All clear**" not in summary
+    assert "⚠️ **Incomplete review**" in summary
+    assert "Review incomplete: all files were skipped" in summary
+    assert "### Files reviewed\n\n0" in summary
+    assert "### Files skipped\n\n2" in summary
+    assert "- `app/binary.so`: Skipped because GitHub did not provide a text patch." in summary
+    assert "- `docs/image.png`: Skipped because GitHub did not provide a text patch." in summary
+
+
+def test_generate_review_summary_partial_skipped_shows_incomplete_review() -> None:
+    skipped = [
+        FileReviewResult(
+            filename="docs/logo.png",
+            summary="Skipped because GitHub did not provide a text patch.",
+            skipped=True,
+        )
+    ]
+    summary = generate_review_summary(
+        findings=[],
+        files_reviewed=3,
+        files_skipped=1,
+        skipped_files=skipped,
+    )
+    assert "✅ **All clear**" not in summary
+    assert "⚠️ **Incomplete review**" in summary
+    assert "Review incomplete: some files were skipped" in summary
+    assert "### Files reviewed\n\n3" in summary
+    assert "### Files skipped\n\n1" in summary
+    assert "- `docs/logo.png`: Skipped because GitHub did not provide a text patch." in summary
+
+
+def test_prepare_review_payload_auto_detects_skipped_files() -> None:
+    file_reviews = [
+        FileReviewResult(
+            filename="src/app.py",
+            findings=[],
+            summary="Clean",
+            skipped=False,
+            metadata={"patch": "@@ -1,2 +1,2 @@\n+line1\n"},
+        ),
+        FileReviewResult(
+            filename="assets/icon.png",
+            findings=[],
+            summary="Skipped because GitHub did not provide a text patch.",
+            skipped=True,
+        ),
+    ]
+    payload = prepare_review_payload(
+        commit_sha="commit_sha_123",
+        findings=file_reviews,
+    )
+    body = payload["body"]
+    assert "✅ **All clear**" not in body
+    assert "⚠️ **Incomplete review**" in body
+    assert "### Files reviewed\n\n1" in body
+    assert "### Files skipped\n\n1" in body
+    assert "- `assets/icon.png`: Skipped because GitHub did not provide a text patch." in body
+
+
 def test_prepare_review_payload_with_inline_and_no_line_findings() -> None:
     patch = "@@ -40,5 +40,5 @@\n context\n+line_41\n+line_42\n"
     file_patches = {"src/payment/service.py": patch}

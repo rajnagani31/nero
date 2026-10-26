@@ -646,7 +646,11 @@ class CodeReviewRepository:
         try:
             session.execute(
                 update(ReviewJob)
-                .where(ReviewJob.id == review_job_id)
+                .where(
+                    ReviewJob.id == review_job_id,
+                    (ReviewJob.review_status != "REVIEW_POSTED")
+                    | (ReviewJob.review_status.is_(None)),
+                )
                 .values(
                     review_status="SKIPPED_DUPLICATE",
                     reviewed_commit_sha=commit_sha,
