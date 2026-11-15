@@ -1,3 +1,6 @@
+import logging
+from decimal import Decimal
+from apps.backend.agents.pr_reviewer_agent.apps.llm_provider.model.user_ai_quota import UserAIQuota
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.pull_request import (
     PullRequest,
 )
@@ -483,7 +486,21 @@ class CodeReviewRepository:
         finally:
             session.close()
 
-    def mark_review_job_succeeded(self, review_job_id: int, final_review: dict) -> None:
+    def mark_review_job_succeeded(
+        self,
+        review_job_id: int,
+        final_review: dict,
+        *,
+        primary_provider: str | None = None,
+        model_name: str | None = None,
+        fallback_used: bool = False,
+        fallback_reason: str | None = None,
+        total_prompt_tokens: int = 0,
+        total_completion_tokens: int = 0,
+        total_tokens: int = 0,
+        total_latency_ms: int = 0,
+        credits_deducted: Decimal = Decimal("0.0000"),
+    ) -> None:
         session = self.session_factory()
         try:
             session.execute(
@@ -495,6 +512,15 @@ class CodeReviewRepository:
                     finished_at=func.now(),
                     error_code=None,
                     final_review_json=final_review,
+                    primary_provider=primary_provider,
+                    model_name=model_name,
+                    fallback_used=fallback_used,
+                    fallback_reason=fallback_reason,
+                    total_prompt_tokens=total_prompt_tokens,
+                    total_completion_tokens=total_completion_tokens,
+                    total_tokens=total_tokens,
+                    total_latency_ms=total_latency_ms,
+                    credits_deducted=credits_deducted,
                 )
             )
             session.commit()
@@ -532,6 +558,11 @@ class CodeReviewRepository:
         findings: list,
         summary: str,
         metadata: dict | None = None,
+        provider_used: str | None = None,
+        model_used: str | None = None,
+        prompt_tokens: int = 0,
+        completion_tokens: int = 0,
+        latency_ms: int = 0,
     ) -> None:
         session = self.session_factory()
         try:
@@ -542,6 +573,11 @@ class CodeReviewRepository:
                 findings_json=findings,
                 summary=summary,
                 metadata_json=metadata or {},
+                provider_used=provider_used,
+                model_used=model_used,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                latency_ms=latency_ms,
             )
             stmt = stmt.on_conflict_do_update(
                 constraint="uq_review_file_results_job_file",
@@ -550,6 +586,11 @@ class CodeReviewRepository:
                     "findings_json": stmt.excluded.findings_json,
                     "summary": stmt.excluded.summary,
                     "metadata_json": stmt.excluded.metadata_json,
+                    "provider_used": stmt.excluded.provider_used,
+                    "model_used": stmt.excluded.model_used,
+                    "prompt_tokens": stmt.excluded.prompt_tokens,
+                    "completion_tokens": stmt.excluded.completion_tokens,
+                    "latency_ms": stmt.excluded.latency_ms,
                 },
             )
             session.execute(stmt)
@@ -664,3 +705,50 @@ class CodeReviewRepository:
         finally:
             session.close()
 
+
+    def record_quota_usage_for_job(
+        self, review_job_id: int, credits_to_deduct: Decimal = Decimal("0.0000")
+    ) -> None:
+        session = self.session_factory()
+        try:
+            job = session.execute(
+                select(ReviewJob).where(ReviewJob.id == review_job_id)
+            ).scalar_one_or_none()
+            if not job:
+                return
+
+            pr = session.execute(
+                select(PullRequest).where(PullRequest.id == job.pr_id)
+            ).scalar_one_or_none()
+            if not pr or not pr.user_id:
+                return
+
+            quota = session.execute(
+                select(UserAIQuota).where(UserAIQuota.user_id == pr.user_id)
+            ).scalar_one_or_none()
+
+            from datetime import datetime, timezone, timedelta
+            now = datetime.now(timezone.utc)
+
+            if not quota:
+                quota = UserAIQuota(
+                    user_id=pr.user_id,
+                    tier=job.user_tier or "free",
+                    monthly_pr_quota=15,
+                    prs_reviewed_this_month=1,
+                    credit_balance=Decimal("0.00"),
+                    period_start=now,
+                    period_end=now + timedelta(days=30),
+                )
+                session.add(quota)
+            else:
+                quota.prs_reviewed_this_month += 1
+                if quota.credit_balance >= credits_to_deduct:
+                    quota.credit_balance -= credits_to_deduct
+
+            session.commit()
+        except Exception:
+            session.rollback()
+            logging.getLogger(__name__).warning("Failed to record quota usage for job %s", review_job_id, exc_info=True)
+        finally:
+            session.close()

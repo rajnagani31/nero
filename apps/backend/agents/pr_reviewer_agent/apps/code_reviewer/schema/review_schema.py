@@ -1,10 +1,8 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
-
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 Severity = Literal["critical", "high", "medium", "low", "info"]
-
 
 SEVERITY_ALIASES = {
     "style": "low",
@@ -17,6 +15,38 @@ SEVERITY_ALIASES = {
     "bug": "high",
     "security": "high",
 }
+
+
+class FileReviewMetadata(BaseModel):
+    """Structured telemetry and execution metadata for an individual file review."""
+
+    model_config = ConfigDict(extra="allow")
+
+    provider: str | None = None
+    key_alias: str | None = None
+    model: str | None = None
+    status: str | None = None
+    reason: str | None = None
+    latency_ms: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+    fallback_used: bool = False
+    fallback_reason: str | None = None
+    provider_used: str | None = None
+    model_used: str | None = None
+
+    def get(self, item: str, default: Any = None) -> Any:
+        return getattr(self, item, default)
+
+    def __getitem__(self, item: str) -> Any:
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(item)
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        setattr(self, key, value)
 
 
 class ReviewFindingDTO(BaseModel):
@@ -92,7 +122,14 @@ class FileReviewResult(BaseModel):
     findings: list[ReviewFindingDTO] = Field(default_factory=list)
     summary: str = ""
     skipped: bool = False
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: FileReviewMetadata = Field(default_factory=FileReviewMetadata)
+
+    @field_validator("metadata", mode="before")
+    @classmethod
+    def normalize_metadata(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            return FileReviewMetadata.model_validate(value)
+        return value or FileReviewMetadata()
 
 
 class FinalReviewResult(BaseModel):

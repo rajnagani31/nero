@@ -1,5 +1,6 @@
 import logging
 from collections import Counter
+from decimal import Decimal
 from typing import Any
 
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.core.celery import (
@@ -17,6 +18,9 @@ from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.tasks.task_helpers
     _error_code,
     _repository,
     _run_async,
+)
+from apps.backend.agents.pr_reviewer_agent.apps.llm_provider.schema.telemetry_schemas import (
+    JobTelemetryRollupDTO,
 )
 
 logger = logging.getLogger(__name__)
@@ -157,13 +161,13 @@ def _deliver_github_pr_review(
 
 @celery_app.task(bind=True, name="aggregate_review")
 def aggregate_review(
-    self, file_reviews: list[dict[str, Any]], review_job_id: int
+    self, file_reviews: list[dict[str, Any] | FileReviewResult], review_job_id: int
 ) -> dict[str, Any]:
     repository = _repository()
     try:
         parsed_reviews = [
-            FileReviewResult.model_validate(file_review)
-            for file_review in file_reviews
+            fr if isinstance(fr, FileReviewResult) else FileReviewResult.model_validate(fr)
+            for fr in file_reviews
         ]
         severity_counts: Counter[str] = Counter()
         for file_review in parsed_reviews:
@@ -171,6 +175,38 @@ def aggregate_review(
 
         total_findings = sum(len(file_review.findings) for file_review in parsed_reviews)
         skipped_files = sum(1 for file_review in parsed_reviews if file_review.skipped)
+
+        # Roll up runtime telemetry across all reviewed files
+        total_prompt_tokens = sum(fr.metadata.prompt_tokens for fr in parsed_reviews)
+        total_completion_tokens = sum(fr.metadata.completion_tokens for fr in parsed_reviews)
+        total_tokens = total_prompt_tokens + total_completion_tokens
+        total_latency_ms = sum(fr.metadata.latency_ms for fr in parsed_reviews)
+
+        fallback_used = any(fr.metadata.fallback_used for fr in parsed_reviews)
+        fallback_reason = next(
+            (fr.metadata.fallback_reason for fr in parsed_reviews if fr.metadata.fallback_reason),
+            None,
+        )
+
+        primary_provider = next(
+            (
+                fr.metadata.provider_used or fr.metadata.provider
+                for fr in parsed_reviews
+                if (fr.metadata.provider_used or fr.metadata.provider)
+            ),
+            None,
+        )
+        model_name = next(
+            (
+                fr.metadata.model_used or fr.metadata.model
+                for fr in parsed_reviews
+                if (fr.metadata.model_used or fr.metadata.model)
+            ),
+            None,
+        )
+
+        credits_to_deduct = Decimal("0.1000")
+
         final_review = FinalReviewResult(
             review_job_id=review_job_id,
             total_files=len(parsed_reviews),
@@ -184,14 +220,50 @@ def aggregate_review(
             ),
             files=parsed_reviews,
         )
+
+        telemetry = JobTelemetryRollupDTO(
+            primary_provider=primary_provider,
+            model_name=model_name,
+            fallback_used=fallback_used,
+            fallback_reason=fallback_reason,
+            total_prompt_tokens=total_prompt_tokens,
+            total_completion_tokens=total_completion_tokens,
+            total_tokens=total_tokens,
+            total_latency_ms=total_latency_ms,
+            credits_deducted=credits_to_deduct,
+        )
+
         final_review_dict = final_review.model_dump(mode="json")
-        repository.mark_review_job_succeeded(review_job_id, final_review_dict)
+
+        repository.mark_review_job_succeeded(
+            review_job_id,
+            final_review_dict,
+            primary_provider=telemetry.primary_provider,
+            model_name=telemetry.model_name,
+            fallback_used=telemetry.fallback_used,
+            fallback_reason=telemetry.fallback_reason,
+            total_prompt_tokens=telemetry.total_prompt_tokens,
+            total_completion_tokens=telemetry.total_completion_tokens,
+            total_tokens=telemetry.total_tokens,
+            total_latency_ms=telemetry.total_latency_ms,
+            credits_deducted=telemetry.credits_deducted,
+        )
+
+        # Record quota and deduction in user_ai_quotas
+        repository.record_quota_usage_for_job(
+            review_job_id=review_job_id,
+            credits_to_deduct=credits_to_deduct,
+        )
+
         logger.info(
-            "ReviewJob succeeded",
+            "ReviewJob succeeded with telemetry rollup",
             extra={
                 "review_job_id": review_job_id,
                 "total_files": len(parsed_reviews),
                 "total_findings": total_findings,
+                "total_tokens": total_tokens,
+                "total_latency_ms": total_latency_ms,
+                "fallback_used": fallback_used,
             },
         )
     except Exception as exc:
