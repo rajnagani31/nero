@@ -26,6 +26,10 @@ class ReviewJobData(BaseModel):
     error_code: str | None = None
     base_sha: str | None = None
     head_sha: str | None = None
+    review_status: str | None = None
+    github_review_id: int | None = None
+    reviewed_commit_sha: str | None = None
+    delivery_error: str | None = None
 
 
 class PullRequestData(BaseModel):

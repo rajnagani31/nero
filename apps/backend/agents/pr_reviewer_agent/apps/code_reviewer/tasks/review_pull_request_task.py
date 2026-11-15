@@ -89,7 +89,10 @@ def review_pull_request(self, review_job_id: int) -> dict[str, Any]:
             "Dispatching review tasks",
             extra={"review_job_id": review_job_id, "total_files": len(file_payloads)},
         )
+        # Fan-Out/Scatter: Create a subtask for every changed file
         header = [review_file.s(review_job_id, file_data) for file_data in file_payloads]
+        
+        # Fan-In/Gether: aggregate_review is the callback waiting for all header subtasks
         async_result = chord(header)(aggregate_review.s(review_job_id))
         return {
             "review_job_id": review_job_id,

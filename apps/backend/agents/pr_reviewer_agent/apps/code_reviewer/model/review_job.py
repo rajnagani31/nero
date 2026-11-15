@@ -24,6 +24,7 @@ class ReviewJob(Base, DateTimeMixin):
     __table_args__ = (
         Index("ix_review_jobs_status_queued_at", "status", "queued_at"),
         Index("ix_review_jobs_pr_id_queued_at", "pr_id", "queued_at"),
+        Index("ix_review_jobs_pr_reviewed_commit", "pr_id", "reviewed_commit_sha"),
     )
     __metadata__ = MetaData(info={"schema_disc": "Stores one AI review execution/lifecycle for a PR."})
     """
@@ -52,7 +53,7 @@ class ReviewJob(Base, DateTimeMixin):
         - failures,
         - when the review started and finished.
     """
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     pr_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("pull_requests.id", ondelete="CASCADE"), nullable=False)
     status: Mapped[ReviewJobStatusEnum] = mapped_column(
         SQLEnum(ReviewJobStatusEnum, name="review_job_status_enum"),
@@ -69,3 +70,7 @@ class ReviewJob(Base, DateTimeMixin):
     final_review_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     base_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
     head_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    review_status: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    github_review_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    reviewed_commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    delivery_error: Mapped[str | None] = mapped_column(String(512), nullable=True)

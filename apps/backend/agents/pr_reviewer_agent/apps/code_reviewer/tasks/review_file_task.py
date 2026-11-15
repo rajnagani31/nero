@@ -16,6 +16,9 @@ from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.service.ai_review_
     AIReviewService,
     AIReviewTemporaryError,
 )
+from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.service.github_review_service import (
+    parse_diff_lines,
+)
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.tasks.task_helpers import (
     _error_code,
     _is_retryable,
@@ -54,6 +57,19 @@ def review_file(self, review_job_id: int, file_data: dict[str, Any]) -> dict[str
                     patch=file.patch,
                 )
             )
+
+        # Preserve patch and valid diff lines for reliable line mapping
+        result.metadata["patch"] = file.patch
+        if file.patch:
+            valid_lines = parse_diff_lines(file.patch)
+            result.metadata["valid_diff_lines"] = sorted(list(valid_lines))
+        else:
+            result.metadata["valid_diff_lines"] = []
+
+        # Ensure all findings retain file mapping
+        for finding in result.findings:
+            if not finding.file:
+                finding.file = file.filename
 
         result_dict = result.model_dump(mode="json")
         repository.save_file_review_result(

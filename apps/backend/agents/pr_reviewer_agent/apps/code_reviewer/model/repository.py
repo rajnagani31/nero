@@ -21,7 +21,7 @@ class Repository(Base, DateTimeMixin):
         "is_deleted": false
     }
     """
-    id: Mapped[BigInteger] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     repo_id: Mapped[BigInteger] = mapped_column(BigInteger, nullable=True, index=True)
     installation_id: Mapped[int] = mapped_column(BigInteger, nullable=True, index=True)
     github_account_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
