@@ -12,6 +12,7 @@ class AICallLogDTO(BaseModel):
     provider: str = Field(default="unknown", description="AI provider (e.g. groq, openai)")
     key_alias: str = Field(default="unknown", description="API key alias used (e.g. primary, fallback)")
     model_name: str = Field(default="unknown", description="Exact model identifier")
+    attempt_number: int = Field(default=1, ge=1, description="Sequential attempt number (1 for primary, 2+ for retries)")
     status_code: int = Field(default=200, description="HTTP response code (e.g. 200, 429, 500)")
     prompt_tokens: int = Field(default=0, ge=0)
     completion_tokens: int = Field(default=0, ge=0)

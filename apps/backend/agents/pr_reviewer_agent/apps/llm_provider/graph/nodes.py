@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 NON_REVIEWABLE_EXTENSIONS = {
     ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".pdf",
     ".zip", ".tar", ".gz", ".woff", ".woff2", ".ttf", ".eot",
-    ".lock", ".map", ".min.js", ".min.css",
+    ".lock", ".map",
 }
 
 NON_REVIEWABLE_FILENAMES = {
@@ -67,7 +67,7 @@ EXTENSION_LANGUAGE_MAP = {
 
 
 def preprocess_diff_node(state: FileReviewState) -> PreprocessDiffOutput:
-    """Inspects file status, path, and patch. Skips non-reviewable or empty diffs."""
+    """Inspects file status, path, and patch. Skips non-reviewable, minified, or empty diffs."""
     filename = state.get("filename", "")
     patch = state.get("patch", "")
     status = state.get("status", "modified")
@@ -92,6 +92,23 @@ def preprocess_diff_node(state: FileReviewState) -> PreprocessDiffOutput:
                 summary=f"File skipped: {status} with no actionable diff patch.",
                 skipped=True,
                 metadata=FileReviewMetadata(status=status, reason="empty_or_deleted"),
+            ),
+        )
+
+    # Skip minified files specifically (.min.js, .min.css)
+    if base_name.endswith(".min.js") or base_name.endswith(".min.css"):
+        return PreprocessDiffOutput(
+            language=language,
+            attempt_count=0,
+            fallback_used=False,
+            fallback_reason=None,
+            call_logs=list(state.get("call_logs") or []),
+            result=FileReviewResult(
+                filename=filename,
+                findings=[],
+                summary=f"File skipped: minified code asset ({base_name}).",
+                skipped=True,
+                metadata=FileReviewMetadata(status=status, reason="minified_asset"),
             ),
         )
 
@@ -166,9 +183,44 @@ async def invoke_model_node(state: FileReviewState) -> ModelInvocationOutput | d
     model_name = state.get("current_model", "dummy")
     filename = state.get("filename", "unknown")
     call_logs: list[AICallLogDTO] = list(state.get("call_logs") or [])
+    attempt_number = state.get("attempt_count", 0) + 1
 
-    # Dummy provider branch
+    # Check for exhausted providers branch
+    if provider in ("exhausted", None, "none"):
+        err = state.get("error") or "All real LLM providers exhausted; no provider available"
+        return ModelInvocationOutput(
+            error=err,
+            status_code=503,
+            call_logs=call_logs,
+        )
+
+    # Dummy provider branch - strictly gated behind explicit force_dummy
     if provider == "dummy":
+        if not state.get("force_dummy", False):
+            err = "Automatic dummy fallback is disabled in production."
+            call_logs.append(
+                AICallLogDTO(
+                    job_id=state.get("job_id"),
+                    filename=filename,
+                    provider="dummy",
+                    key_alias="dummy",
+                    model_name="dummy",
+                    attempt_number=attempt_number,
+                    status_code=503,
+                    prompt_tokens=0,
+                    completion_tokens=0,
+                    total_tokens=0,
+                    latency_ms=0,
+                    error_message=err,
+                )
+            )
+            return ModelInvocationOutput(
+                error=err,
+                status_code=503,
+                call_logs=call_logs,
+            )
+
+        # Explicit test mode mock review
         result = FileReviewResult(
             filename=filename,
             findings=[
@@ -196,6 +248,7 @@ async def invoke_model_node(state: FileReviewState) -> ModelInvocationOutput | d
                 provider="dummy",
                 key_alias="dummy",
                 model_name="dummy",
+                attempt_number=attempt_number,
                 status_code=200,
                 prompt_tokens=0,
                 completion_tokens=0,
@@ -236,6 +289,7 @@ async def invoke_model_node(state: FileReviewState) -> ModelInvocationOutput | d
                 provider=provider,
                 key_alias=key_alias,
                 model_name=model_name,
+                attempt_number=attempt_number,
                 status_code=500,
                 prompt_tokens=0,
                 completion_tokens=0,
@@ -286,6 +340,7 @@ async def invoke_model_node(state: FileReviewState) -> ModelInvocationOutput | d
                 provider=provider,
                 key_alias=key_alias,
                 model_name=model_name,
+                attempt_number=attempt_number,
                 status_code=200,
                 prompt_tokens=prompt_tokens,
                 completion_tokens=completion_tokens,
@@ -326,6 +381,7 @@ async def invoke_model_node(state: FileReviewState) -> ModelInvocationOutput | d
                 provider=provider,
                 key_alias=key_alias,
                 model_name=model_name,
+                attempt_number=attempt_number,
                 status_code=status_code,
                 prompt_tokens=0,
                 completion_tokens=0,
@@ -372,17 +428,28 @@ def failover_node(state: FileReviewState) -> FailoverOutput:
         updates.current_key_alias = "primary"
         updates.current_model = config.GROQ_MODEL or "openai/gpt-oss-120b"
     else:
-        updates.current_provider = "dummy"
-        updates.current_key_alias = "dummy"
-        updates.current_model = "dummy"
+        # All real providers exhausted
+        if state.get("force_dummy", False):
+            updates.current_provider = "dummy"
+            updates.current_key_alias = "dummy"
+            updates.current_model = "dummy"
+        else:
+            updates.current_provider = "exhausted"
+            updates.current_key_alias = "none"
+            updates.current_model = "none"
+            updates.error = f"All real LLM providers exhausted. Last error: {error_msg}"
 
     return updates
 
 
 def audit_log_node(state: FileReviewState) -> AuditLogOutput:
-    """Finalizes telemetry on result or builds fallback result if all attempts failed."""
+    """Finalizes telemetry on result or builds failure result if all attempts failed."""
     result = state.get("result")
     filename = state.get("filename", "unknown")
+    call_logs: list[AICallLogDTO] = list(state.get("call_logs") or [])
+
+    # Calculate cumulative latency across all attempts
+    total_file_latency = sum(getattr(c, "latency_ms", 0) for c in call_logs) or state.get("latency_ms", 0)
 
     if result is None:
         result = FileReviewResult(
@@ -391,22 +458,23 @@ def audit_log_node(state: FileReviewState) -> AuditLogOutput:
             summary=f"Review failed after {state.get('attempt_count', 0)} attempts: {state.get('error')}",
             skipped=False,
             metadata=FileReviewMetadata(
-                provider=state.get("current_provider", "none"),
+                provider=None,
+                model=None,
                 status="failed",
                 reason=state.get("error"),
                 fallback_used=state.get("fallback_used", False),
+                fallback_reason=state.get("fallback_reason"),
+                latency_ms=total_file_latency,
+                prompt_tokens=0,
+                completion_tokens=0,
+                total_tokens=0,
             ),
         )
-
-    # Ensure metadata has telemetry
-    meta = result.metadata
-    meta.provider_used = state.get("current_provider")
-    meta.model_used = state.get("current_model")
-    meta.prompt_tokens = state.get("prompt_tokens", 0)
-    meta.completion_tokens = state.get("completion_tokens", 0)
-    meta.total_tokens = state.get("total_tokens", 0)
-    meta.latency_ms = state.get("latency_ms", 0)
-    meta.fallback_used = state.get("fallback_used", False)
-    meta.fallback_reason = state.get("fallback_reason")
+    else:
+        meta = result.metadata
+        meta.latency_ms = total_file_latency
+        if state.get("fallback_used"):
+            meta.fallback_used = True
+            meta.fallback_reason = state.get("fallback_reason")
 
     return AuditLogOutput(result=result)

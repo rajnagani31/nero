@@ -1,8 +1,10 @@
 import logging
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Sequence
 
 from sqlalchemy import func, select, update
+from sqlalchemy.exc import IntegrityError
 
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.pull_request import (
     PullRequest,
@@ -49,6 +51,7 @@ class AITelemetryRepository:
                     provider=item.provider,
                     key_alias=item.key_alias,
                     model_name=item.model_name,
+                    attempt_number=getattr(item, "attempt_number", 1) or 1,
                     status_code=item.status_code,
                     prompt_tokens=item.prompt_tokens,
                     completion_tokens=item.completion_tokens,
@@ -68,8 +71,9 @@ class AITelemetryRepository:
         review_job_id: int,
         final_review: FinalReviewResult | dict,
         telemetry: JobTelemetryRollupDTO,
+        status: ReviewJobStatusEnum = ReviewJobStatusEnum.SUCCEEDED,
     ) -> None:
-        """Updates ReviewJob status to SUCCEEDED and sets all telemetry rollup columns."""
+        """Updates ReviewJob status and sets all telemetry rollup columns."""
         review_dict = (
             final_review.model_dump(mode="json")
             if isinstance(final_review, FinalReviewResult)
@@ -82,7 +86,7 @@ class AITelemetryRepository:
                 update(ReviewJob)
                 .where(ReviewJob.id == review_job_id)
                 .values(
-                    status=ReviewJobStatusEnum.SUCCEEDED,
+                    status=status,
                     processed_files=ReviewJob.total_files,
                     finished_at=func.now(),
                     error_code=None,
@@ -90,7 +94,7 @@ class AITelemetryRepository:
                     primary_provider=telemetry.primary_provider,
                     model_name=telemetry.model_name,
                     fallback_used=telemetry.fallback_used,
-                    fallback_reason=telemetry.fallback_reason,
+                    fallback_reason=(telemetry.fallback_reason[:255] if telemetry.fallback_reason else None),
                     total_prompt_tokens=telemetry.total_prompt_tokens,
                     total_completion_tokens=telemetry.total_completion_tokens,
                     total_tokens=telemetry.total_tokens,
@@ -108,48 +112,82 @@ class AITelemetryRepository:
 
     def record_quota_usage_for_job(
         self, review_job_id: int, credits_to_deduct: Decimal = Decimal("0.0000")
-    ) -> None:
-        """Finds user for the review job and deducts credits / increments review count."""
+    ) -> Decimal:
+        """
+        Concurrency-safe quota deduction using row-level locking (with_for_update).
+        Resets monthly counters when 30-day period expires.
+        Returns the exact Decimal amount deducted.
+        """
+        actual_deducted = Decimal("0.0000")
         session = self.session_factory()
         try:
             job = session.execute(
                 select(ReviewJob).where(ReviewJob.id == review_job_id)
             ).scalar_one_or_none()
             if not job:
-                return
+                return actual_deducted
 
             pr = session.execute(
                 select(PullRequest).where(PullRequest.id == job.pr_id)
             ).scalar_one_or_none()
             if not pr or not pr.user_id:
-                return
+                return actual_deducted
 
-            quota = session.execute(
-                select(UserAIQuota).where(UserAIQuota.user_id == pr.user_id)
-            ).scalar_one_or_none()
-
-            from datetime import datetime, timezone, timedelta
             now = datetime.now(timezone.utc)
 
+            # Row-level locking to avoid concurrent overwrite race conditions
+            quota = session.execute(
+                select(UserAIQuota)
+                .where(UserAIQuota.user_id == pr.user_id)
+                .with_for_update()
+            ).scalar_one_or_none()
+
             if not quota:
-                quota = UserAIQuota(
-                    user_id=pr.user_id,
-                    tier=job.user_tier or "free",
-                    monthly_pr_quota=15,
-                    prs_reviewed_this_month=1,
-                    credit_balance=Decimal("0.00"),
-                    period_start=now,
-                    period_end=now + timedelta(days=30),
-                )
-                session.add(quota)
-            else:
-                quota.prs_reviewed_this_month += 1
-                if quota.credit_balance >= credits_to_deduct:
-                    quota.credit_balance -= credits_to_deduct
+                # Handle first-time creation collision safely
+                try:
+                    quota = UserAIQuota(
+                        user_id=pr.user_id,
+                        tier=job.user_tier or "free",
+                        monthly_pr_quota=15,
+                        prs_reviewed_this_month=1,
+                        credit_balance=Decimal("0.00"),
+                        period_start=now,
+                        period_end=now + timedelta(days=30),
+                    )
+                    session.add(quota)
+                    session.commit()
+                    return actual_deducted
+                except IntegrityError:
+                    session.rollback()
+                    quota = session.execute(
+                        select(UserAIQuota)
+                        .where(UserAIQuota.user_id == pr.user_id)
+                        .with_for_update()
+                    ).scalar_one_or_none()
+                    if not quota:
+                        return actual_deducted
+
+            # 30-day monthly quota period check and reset
+            period_end = quota.period_end
+            if period_end:
+                if period_end.tzinfo is None:
+                    period_end = period_end.replace(tzinfo=timezone.utc)
+                if now >= period_end:
+                    quota.period_start = now
+                    quota.period_end = now + timedelta(days=30)
+                    quota.prs_reviewed_this_month = 0
+
+            quota.prs_reviewed_this_month += 1
+
+            if credits_to_deduct > 0 and quota.credit_balance > 0:
+                actual_deducted = min(quota.credit_balance, credits_to_deduct)
+                quota.credit_balance -= actual_deducted
 
             session.commit()
+            return actual_deducted
         except Exception:
             session.rollback()
             logger.warning("Failed to record quota usage for job %s", review_job_id, exc_info=True)
+            return actual_deducted
         finally:
             session.close()

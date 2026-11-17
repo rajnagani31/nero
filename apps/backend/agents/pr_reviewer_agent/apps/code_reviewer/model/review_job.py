@@ -29,6 +29,7 @@ class ReviewJobStatusEnum(str, Enum):
     QUEUED = "queued"
     RUNNING = "running"
     SUCCEEDED = "succeeded"
+    PARTIALLY_SUCCEEDED = "partially_succeeded"
     FAILED = "failed"
     CANCELED = "canceled"
 

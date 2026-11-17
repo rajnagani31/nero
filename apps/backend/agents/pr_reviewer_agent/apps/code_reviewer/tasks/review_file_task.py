@@ -42,6 +42,13 @@ def review_file(self, review_job_id: int, file_data: PullRequestFile | dict[str,
     file = file_data if isinstance(file_data, PullRequestFile) else PullRequestFile.model_validate(file_data)
 
     try:
+        # Mark file as processing by worker
+        repository.mark_file_review_processing(review_job_id, file.filename)
+
+        # Retrieve job context to load configured user_tier
+        job_context = repository.get_review_job_context(review_job_id) or {}
+        user_tier = job_context.get("user_tier", "free")
+
         if file.patch is None:
             result = FileReviewResult(
                 filename=file.filename,
@@ -56,6 +63,7 @@ def review_file(self, review_job_id: int, file_data: PullRequestFile | dict[str,
                     status=file.status,
                     patch=file.patch,
                     job_id=review_job_id,
+                    user_tier=user_tier,
                 )
             )
 
@@ -74,15 +82,27 @@ def review_file(self, review_job_id: int, file_data: PullRequestFile | dict[str,
 
         result_dict = result.model_dump(mode="json")
         meta = result.metadata
+
+        # Formalize status: skipped, failed, or reviewed
+        if result.skipped:
+            file_status = "skipped"
+        elif meta.status == "failed":
+            file_status = "failed"
+        else:
+            file_status = "reviewed"
+
+        provider_used = None if file_status == "failed" else (meta.provider_used or meta.provider)
+        model_used = None if file_status == "failed" else (meta.model_used or meta.model)
+
         repository.save_file_review_result(
             review_job_id=review_job_id,
             filename=result.filename,
-            status="skipped" if result.skipped else "reviewed",
+            status=file_status,
             findings=result_dict["findings"],
             summary=result.summary,
             metadata=meta.model_dump(mode="json"),
-            provider_used=meta.provider_used or meta.provider,
-            model_used=meta.model_used or meta.model,
+            provider_used=provider_used,
+            model_used=model_used,
             prompt_tokens=meta.prompt_tokens,
             completion_tokens=meta.completion_tokens,
             latency_ms=meta.latency_ms,

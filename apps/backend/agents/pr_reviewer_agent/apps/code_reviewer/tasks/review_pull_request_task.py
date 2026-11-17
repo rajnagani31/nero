@@ -89,6 +89,11 @@ def review_pull_request(self, review_job_id: int) -> dict[str, Any]:
             "Dispatching review tasks",
             extra={"review_job_id": review_job_id, "total_files": len(file_payloads)},
         )
+
+        # Pre-register files in queued status
+        file_names = [f.get("filename") for f in file_payloads if f.get("filename")]
+        repository.queue_file_review_results(review_job_id, file_names)
+
         # Fan-Out/Scatter: Create a subtask for every changed file
         header = [review_file.s(review_job_id, file_data) for file_data in file_payloads]
         

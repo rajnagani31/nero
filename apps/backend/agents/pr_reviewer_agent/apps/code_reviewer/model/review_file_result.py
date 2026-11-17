@@ -3,6 +3,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    SmallInteger,
     String,
     Text,
     UniqueConstraint,
@@ -29,6 +30,9 @@ class ReviewFileResult(Base, DateTimeMixin):
     )
     filename: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
+    attempts: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=1, server_default=text("1")
+    )
     findings_json: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)

@@ -6,6 +6,9 @@ from typing import Any
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.core.celery import (
     celery_app,
 )
+from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.review_job import (
+    ReviewJobStatusEnum,
+)
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.schema.review_schema import (
     FileReviewResult,
     FinalReviewResult,
@@ -175,6 +178,8 @@ def aggregate_review(
 
         total_findings = sum(len(file_review.findings) for file_review in parsed_reviews)
         skipped_files = sum(1 for file_review in parsed_reviews if file_review.skipped)
+        failed_files = sum(1 for file_review in parsed_reviews if getattr(file_review.metadata, "status", None) == "failed")
+        reviewed_files = max(0, len(parsed_reviews) - skipped_files - failed_files)
 
         # Roll up runtime telemetry across all reviewed files
         total_prompt_tokens = sum(fr.metadata.prompt_tokens for fr in parsed_reviews)
@@ -183,10 +188,11 @@ def aggregate_review(
         total_latency_ms = sum(fr.metadata.latency_ms for fr in parsed_reviews)
 
         fallback_used = any(fr.metadata.fallback_used for fr in parsed_reviews)
-        fallback_reason = next(
+        raw_fallback_reason = next(
             (fr.metadata.fallback_reason for fr in parsed_reviews if fr.metadata.fallback_reason),
             None,
         )
+        fallback_reason = raw_fallback_reason[:255] if raw_fallback_reason else None
 
         primary_provider = next(
             (
@@ -205,18 +211,30 @@ def aggregate_review(
             None,
         )
 
-        credits_to_deduct = Decimal("0.1000")
+        # Determine overall job status
+        if failed_files > 0 and reviewed_files > 0:
+            target_status = ReviewJobStatusEnum.PARTIALLY_SUCCEEDED
+        elif failed_files > 0 and reviewed_files == 0:
+            target_status = ReviewJobStatusEnum.FAILED
+        else:
+            target_status = ReviewJobStatusEnum.SUCCEEDED
+
+        # Record quota and deduct credits atomically, obtaining verified actual deduction
+        actual_deducted = repository.record_quota_usage_for_job(
+            review_job_id=review_job_id,
+            credits_to_deduct=Decimal("0.1000"),
+        ) or Decimal("0.0000")
 
         final_review = FinalReviewResult(
             review_job_id=review_job_id,
             total_files=len(parsed_reviews),
-            reviewed_files=len(parsed_reviews) - skipped_files,
+            reviewed_files=reviewed_files,
             skipped_files=skipped_files,
             total_findings=total_findings,
             findings_by_severity=dict(severity_counts),
             summary=(
-                f"Reviewed {len(parsed_reviews) - skipped_files} files, skipped "
-                f"{skipped_files}, found {total_findings} findings."
+                f"Reviewed {reviewed_files} files, skipped {skipped_files}, "
+                f"failed {failed_files}, found {total_findings} findings."
             ),
             files=parsed_reviews,
         )
@@ -230,7 +248,7 @@ def aggregate_review(
             total_completion_tokens=total_completion_tokens,
             total_tokens=total_tokens,
             total_latency_ms=total_latency_ms,
-            credits_deducted=credits_to_deduct,
+            credits_deducted=actual_deducted,
         )
 
         final_review_dict = final_review.model_dump(mode="json")
@@ -238,6 +256,7 @@ def aggregate_review(
         repository.mark_review_job_succeeded(
             review_job_id,
             final_review_dict,
+            status=target_status,
             primary_provider=telemetry.primary_provider,
             model_name=telemetry.model_name,
             fallback_used=telemetry.fallback_used,
@@ -249,21 +268,20 @@ def aggregate_review(
             credits_deducted=telemetry.credits_deducted,
         )
 
-        # Record quota and deduction in user_ai_quotas
-        repository.record_quota_usage_for_job(
-            review_job_id=review_job_id,
-            credits_to_deduct=credits_to_deduct,
-        )
-
         logger.info(
-            "ReviewJob succeeded with telemetry rollup",
+            "ReviewJob completed with status %s",
+            target_status.value,
             extra={
                 "review_job_id": review_job_id,
+                "status": target_status.value,
                 "total_files": len(parsed_reviews),
+                "reviewed_files": reviewed_files,
+                "failed_files": failed_files,
                 "total_findings": total_findings,
                 "total_tokens": total_tokens,
                 "total_latency_ms": total_latency_ms,
                 "fallback_used": fallback_used,
+                "credits_deducted": str(actual_deducted),
             },
         )
     except Exception as exc:
@@ -274,19 +292,21 @@ def aggregate_review(
         )
         raise
 
-    # Deliver completed review to GitHub PR
-    try:
-        _deliver_github_pr_review(
-            repository=repository,
-            review_job_id=review_job_id,
-            parsed_reviews=parsed_reviews,
-            final_review=final_review,
-        )
-    except Exception as exc:
-        repository.mark_review_job_delivery_failed(review_job_id, str(exc))
-        logger.exception(
-            "Unexpected error in _deliver_github_pr_review wrapper",
-            extra={"review_job_id": review_job_id, "error": str(exc)},
-        )
+    # Deliver completed review to GitHub PR only if at least some files succeeded
+    if target_status in (ReviewJobStatusEnum.SUCCEEDED, ReviewJobStatusEnum.PARTIALLY_SUCCEEDED):
+        try:
+            _deliver_github_pr_review(
+                repository=repository,
+                review_job_id=review_job_id,
+                parsed_reviews=parsed_reviews,
+                final_review=final_review,
+            )
+        except Exception as exc:
+            repository.mark_review_job_delivery_failed(review_job_id, str(exc))
+            logger.exception(
+                "Unexpected error in _deliver_github_pr_review wrapper",
+                extra={"review_job_id": review_job_id, "error": str(exc)},
+            )
+            raise
 
     return final_review_dict
