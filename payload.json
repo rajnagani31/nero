@@ -1,18 +1,18 @@
 {
     "action": "edited",
-    "number": 50,
+    "number": 51,
     "pull_request": {
-        "url": "https://api.github.com/repos/rajnagani31/nero/pulls/50",
-        "id": 5002899819,
-        "node_id": "PR_kwDOSDERBs8AAAABKjIxaw",
-        "html_url": "https://github.com/rajnagani31/nero/pull/50",
-        "diff_url": "https://github.com/rajnagani31/nero/pull/50.diff",
-        "patch_url": "https://github.com/rajnagani31/nero/pull/50.patch",
-        "issue_url": "https://api.github.com/repos/rajnagani31/nero/issues/50",
-        "number": 50,
+        "url": "https://api.github.com/repos/rajnagani31/nero/pulls/51",
+        "id": 5322557889,
+        "node_id": "PR_kwDOSDERBs8AAAABPT_JwQ",
+        "html_url": "https://github.com/rajnagani31/nero/pull/51",
+        "diff_url": "https://github.com/rajnagani31/nero/pull/51.diff",
+        "patch_url": "https://github.com/rajnagani31/nero/pull/51.patch",
+        "issue_url": "https://api.github.com/repos/rajnagani31/nero/issues/51",
+        "number": 51,
         "state": "open",
         "locked": false,
-        "title": "feat(review): deliver automated AI reviews and inline comments to Git\u2026",
+        "title": "feat(ai-engine): integrate LangGraph review engine, tiered router, te\u2026",
         "user": {
             "login": "rajnagani31",
             "id": 203210103,
@@ -34,27 +34,27 @@
             "user_view_type": "public",
             "site_admin": false
         },
-        "body": "\u2026Hub PRs\n\n<!-- greptile_comment -->\n\n<!-- greptile_summary -->\n\n<h2><a href=\"https://app.greptile.com/api/retrigger?id=87584121\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/RetriggerDark.svg?v=2\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/Retrigger.svg?v=2\"><img alt=\"Retrigger\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/Retrigger.svg?v=2\" align=\"right\"></picture></a><a href=\"https://app.greptile.com/nero/github/rajnagani31/nero/-/pull/50\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/ViewInGreptileDark.svg?v=2\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/ViewInGreptile.svg?v=2\"><img alt=\"View in Greptile\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/ViewInGreptile.svg?v=2\" align=\"right\"></picture></a>Confidence Score: 3/5</h2>\n\n<!-- greptile-risk -->\n\nFix duplicate prevention before merging so replayed or overlapping jobs cannot post repeated reviews.\n\n<h2>Findings</h2>\n\n1. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Replays erase duplicate protection** <a href=\"https://github.com/rajnagani31/nero/pull/50#discussion_r4370092724\">\u25b6</a>\n2. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Overlapping jobs post duplicate reviews** <a href=\"https://github.com/rajnagani31/nero/pull/50#discussion_r4370092729\">\u25b6</a>\n3. <img alt=\"P2\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p2.svg?v=9\" align=\"top\">&nbsp;**Skipped files get clean reviews** <a href=\"https://github.com/rajnagani31/nero/pull/50#discussion_r4370092731\">\u25b6</a>\n\n<details open><summary><h3>Summary</h3></summary>\n\nAdds GitHub delivery for completed AI reviews, including inline comments, a Markdown summary, and saved delivery status.\n- Completed AI reviews now appear on GitHub pull requests.\n- Review jobs track GitHub delivery separately from AI review results.\n- The sample webhook payload now shows a requested check-suite event.\n</details>\n\n<details open><summary><h3>Diagram</h3></summary>\n\n```mermaid\nsequenceDiagram\n    participant Files as File review tasks\n    participant Aggregate as Aggregate task\n    participant DB as Database\n    participant GitHub\n    Files->>Aggregate: Findings and patch metadata\n    Aggregate->>DB: Save completed AI review\n    Aggregate->>DB: Look up posted review for commit\n    alt Posted review found\n        Aggregate->>DB: Mark job as skipped duplicate\n    else No posted review found\n        Aggregate->>GitHub: Submit summary and inline comments\n        alt Submission succeeds\n            Aggregate->>DB: Save GitHub review ID\n        else Submission fails\n            Aggregate->>DB: Save delivery error\n        end\n    end\n```\n</details>\n\n<!-- greptile_confidence_score:3 -->\n\n<sub>Reviews (1) \u00b7 Last reviewed commit: [\"feat(review): deliver automated AI revie...\"](https://github.com/rajnagani31/nero/commit/f15ac00265fef7b4e3692ce92152eda9dcd1ebe7) \u00b7 [Reviewed by Greptile](https://www.greptile.com/?utm_source=greptile_review&utm_medium=github&utm_campaign=review_public&utm_content=rajnagani31/nero)</sub>\n\n<!-- /greptile_comment -->",
-        "created_at": "2026-10-25T07:53:54Z",
-        "updated_at": "2026-10-25T07:57:26Z",
+        "body": "\u2026lemetry, and nero-38 delivery\n\n<!-- greptile_comment -->\n\n<!-- greptile_summary -->\n\n<h2><a href=\"https://app.greptile.com/api/retrigger?id=107494315&amp;sig=e0bb80552c41dcc000028bb9c547c44a1c85c7f5d80e23b1421136a7227cceff\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/RetriggerDark.svg?v=2\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/Retrigger.svg?v=2\"><img alt=\"Retrigger\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/Retrigger.svg?v=2\" align=\"right\"></picture></a><a href=\"https://app.greptile.com/-/switch-tenant?tenant=nero&amp;next=%2Frajnagani31%2Fnero%2Fpull%2F51&amp;utm_source=greptile_review&amp;utm_medium=github&amp;utm_campaign=view_in_greptile\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/ViewInGreptileDark.svg?v=2\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://greptile-static-assets.s3.amazonaws.com/badges/ViewInGreptile.svg?v=2\"><img alt=\"View in Greptile\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/ViewInGreptile.svg?v=2\" align=\"right\"></picture></a>Confidence Score: 0/5</h2>\n\n<!-- greptile-risk -->\n\nFix container startup, failed reviews being reported as successful, paid-tier routing, and unsafe credit updates before merging.\n\n<h2>Findings</h2>\n\n1. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Containers cannot reach PostgreSQL** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324410\">\u25b6</a>\n2. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Failed reviews look successful** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324416\">\u25b6</a>\n3. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Paid jobs use free routing** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324421\">\u25b6</a>\n4. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Long errors block successful reviews** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324424\">\u25b6</a>\n5. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Reviews overwrite usage counts** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324431\">\u25b6</a>\n6. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**One review gets charged twice** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324435\">\u25b6</a>\n7. <img alt=\"P1\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p1.svg?v=9\" align=\"top\">&nbsp;**Containers race on migrations** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324463\">\u25b6</a>\n8. <img alt=\"P2\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p2.svg?v=9\" align=\"top\">&nbsp;**Monthly counts never reset** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324439\">\u25b6</a>\n9. <img alt=\"P2\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p2.svg?v=9\" align=\"top\">&nbsp;**Saved charges do not match** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324443\">\u25b6</a>\n10. <img alt=\"P2\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p2.svg?v=9\" align=\"top\">&nbsp;**Failover test depends on secrets** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324447\">\u25b6</a>\n11. <img alt=\"P2\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p2.svg?v=9\" align=\"top\">&nbsp;**Every attempt is numbered one** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324449\">\u25b6</a>\n12. <img alt=\"P2\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p2.svg?v=9\" align=\"top\">&nbsp;**Failed call time disappears** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324455\">\u25b6</a>\n13. <img alt=\"P2\" src=\"https://greptile-static-assets.s3.amazonaws.com/badges/p2.svg?v=9\" align=\"top\">&nbsp;**Minified files are not skipped** <a href=\"https://github.com/rajnagani31/nero/pull/51#discussion_r4578324458\">\u25b6</a>\n\n<details open><summary><h3>Summary</h3></summary>\n\nAdds a LangGraph review engine with Groq/OpenAI routing, fallback calls, saved AI telemetry, and per-user usage records.\n\n- Pull-request files now go through a structured AI review workflow.\n- Review tiers now choose which AI provider handles a file.\n- Review jobs now save AI usage details and update user quotas.\n- The container now prepares database changes before launching the app.\n- The sample webhook payload now uses a different review example.\n</details>\n\n<details open><summary><h3>Diagram</h3></summary>\n\n```mermaid\n%%{init: {'theme': 'neutral'}}%%\nflowchart TD\n    Startup[Container starts] --> Migration[Run Alembic migrations]\n    Migration --> Process[Start server or worker]\n    File[File review task] --> Preprocess[Check patch and file type]\n    Preprocess -->|Reviewable| Router[Choose provider from tier]\n    Preprocess -->|Skipped| Audit[Finalize file result]\n    Router --> Invoke[Call provider]\n    Invoke -->|Success| Audit\n    Invoke -->|Failure and attempts remain| Fallback[Choose fallback]\n    Fallback --> Invoke\n    Invoke -->|Attempts exhausted| Audit\n    Audit --> Logs[Save call logs and file result]\n    Logs --> Aggregate[Gather file results]\n    Aggregate --> Job[Save job totals]\n    Job --> Quota[Update user count and credits]\n    Quota --> GitHub[Post GitHub review]\n```\n</details>\n\n<!-- greptile_confidence_score:0 -->\n\n<sub>Reviews (1) \u00b7 Last reviewed commit: [\"feat(ai-engine): integrate LangGraph rev...\"](https://github.com/rajnagani31/nero/commit/59bf9b47116d9b16775c75a40055c7da86e8e788) \u00b7 [Reviewed by Greptile](https://www.greptile.com/?utm_source=greptile_review&utm_medium=github&utm_campaign=review_public&utm_content=rajnagani31/nero)</sub>\n\n<!-- /greptile_comment -->",
+        "created_at": "2026-11-15T12:11:14Z",
+        "updated_at": "2026-11-15T12:16:34Z",
         "closed_at": null,
         "merged_at": null,
-        "merge_commit_sha": "b66b528521c1dd532e154c294dd8a78cb86986d7",
+        "merge_commit_sha": "2136f5dbe689d91db0fe3d071f965bb0914a15aa",
         "assignees": [],
         "requested_reviewers": [],
         "requested_teams": [],
         "labels": [],
         "milestone": null,
         "draft": true,
-        "commits_url": "https://api.github.com/repos/rajnagani31/nero/pulls/50/commits",
-        "review_comments_url": "https://api.github.com/repos/rajnagani31/nero/pulls/50/comments",
+        "commits_url": "https://api.github.com/repos/rajnagani31/nero/pulls/51/commits",
+        "review_comments_url": "https://api.github.com/repos/rajnagani31/nero/pulls/51/comments",
         "review_comment_url": "https://api.github.com/repos/rajnagani31/nero/pulls/comments{/number}",
-        "comments_url": "https://api.github.com/repos/rajnagani31/nero/issues/50/comments",
-        "statuses_url": "https://api.github.com/repos/rajnagani31/nero/statuses/f15ac00265fef7b4e3692ce92152eda9dcd1ebe7",
+        "comments_url": "https://api.github.com/repos/rajnagani31/nero/issues/51/comments",
+        "statuses_url": "https://api.github.com/repos/rajnagani31/nero/statuses/59bf9b47116d9b16775c75a40055c7da86e8e788",
         "head": {
-            "label": "rajnagani31:nero-38",
-            "ref": "nero-38",
-            "sha": "f15ac00265fef7b4e3692ce92152eda9dcd1ebe7",
+            "label": "rajnagani31:nero-40-ai-engine",
+            "ref": "nero-40-ai-engine",
+            "sha": "59bf9b47116d9b16775c75a40055c7da86e8e788",
             "user": {
                 "login": "rajnagani31",
                 "id": 203210103,
@@ -145,13 +145,13 @@
                 "deployments_url": "https://api.github.com/repos/rajnagani31/nero/deployments",
                 "created_at": "2026-04-15T06:20:16Z",
                 "updated_at": "2026-10-22T17:30:43Z",
-                "pushed_at": "2026-10-25T07:50:52Z",
+                "pushed_at": "2026-11-15T12:10:45Z",
                 "git_url": "git://github.com/rajnagani31/nero.git",
                 "ssh_url": "git@github.com:rajnagani31/nero.git",
                 "clone_url": "https://github.com/rajnagani31/nero.git",
                 "svn_url": "https://github.com/rajnagani31/nero",
                 "homepage": null,
-                "size": 862,
+                "size": 896,
                 "stargazers_count": 0,
                 "watchers_count": 0,
                 "language": "Python",
@@ -194,7 +194,7 @@
         "base": {
             "label": "rajnagani31:develop",
             "ref": "develop",
-            "sha": "b3872de20e703cad248184453ea4205480ffbcfe",
+            "sha": "e2e25ede57db47ba9492bff1c54427195efa8b46",
             "user": {
                 "login": "rajnagani31",
                 "id": 203210103,
@@ -285,13 +285,13 @@
                 "deployments_url": "https://api.github.com/repos/rajnagani31/nero/deployments",
                 "created_at": "2026-04-15T06:20:16Z",
                 "updated_at": "2026-10-22T17:30:43Z",
-                "pushed_at": "2026-10-25T07:50:52Z",
+                "pushed_at": "2026-11-15T12:10:45Z",
                 "git_url": "git://github.com/rajnagani31/nero.git",
                 "ssh_url": "git@github.com:rajnagani31/nero.git",
                 "clone_url": "https://github.com/rajnagani31/nero.git",
                 "svn_url": "https://github.com/rajnagani31/nero",
                 "homepage": null,
-                "size": 862,
+                "size": 896,
                 "stargazers_count": 0,
                 "watchers_count": 0,
                 "language": "Python",
@@ -333,28 +333,28 @@
         },
         "_links": {
             "self": {
-                "href": "https://api.github.com/repos/rajnagani31/nero/pulls/50"
+                "href": "https://api.github.com/repos/rajnagani31/nero/pulls/51"
             },
             "html": {
-                "href": "https://github.com/rajnagani31/nero/pull/50"
+                "href": "https://github.com/rajnagani31/nero/pull/51"
             },
             "issue": {
-                "href": "https://api.github.com/repos/rajnagani31/nero/issues/50"
+                "href": "https://api.github.com/repos/rajnagani31/nero/issues/51"
             },
             "comments": {
-                "href": "https://api.github.com/repos/rajnagani31/nero/issues/50/comments"
+                "href": "https://api.github.com/repos/rajnagani31/nero/issues/51/comments"
             },
             "review_comments": {
-                "href": "https://api.github.com/repos/rajnagani31/nero/pulls/50/comments"
+                "href": "https://api.github.com/repos/rajnagani31/nero/pulls/51/comments"
             },
             "review_comment": {
                 "href": "https://api.github.com/repos/rajnagani31/nero/pulls/comments{/number}"
             },
             "commits": {
-                "href": "https://api.github.com/repos/rajnagani31/nero/pulls/50/commits"
+                "href": "https://api.github.com/repos/rajnagani31/nero/pulls/51/commits"
             },
             "statuses": {
-                "href": "https://api.github.com/repos/rajnagani31/nero/statuses/f15ac00265fef7b4e3692ce92152eda9dcd1ebe7"
+                "href": "https://api.github.com/repos/rajnagani31/nero/statuses/59bf9b47116d9b16775c75a40055c7da86e8e788"
             }
         },
         "author_association": "OWNER",
@@ -367,16 +367,16 @@
         "mergeable_state": "unstable",
         "merged_by": null,
         "comments": 1,
-        "review_comments": 77,
+        "review_comments": 13,
         "maintainer_can_modify": false,
         "commits": 1,
-        "additions": 1898,
-        "deletions": 52,
-        "changed_files": 17
+        "additions": 2883,
+        "deletions": 976,
+        "changed_files": 50
     },
     "changes": {
         "body": {
-            "from": "\u2026Hub PRs"
+            "from": "\u2026lemetry, and nero-38 delivery"
         }
     },
     "repository": {
@@ -448,13 +448,13 @@
         "deployments_url": "https://api.github.com/repos/rajnagani31/nero/deployments",
         "created_at": "2026-04-15T06:20:16Z",
         "updated_at": "2026-10-22T17:30:43Z",
-        "pushed_at": "2026-10-25T07:50:52Z",
+        "pushed_at": "2026-11-15T12:10:45Z",
         "git_url": "git://github.com/rajnagani31/nero.git",
         "ssh_url": "git@github.com:rajnagani31/nero.git",
         "clone_url": "https://github.com/rajnagani31/nero.git",
         "svn_url": "https://github.com/rajnagani31/nero",
         "homepage": null,
-        "size": 862,
+        "size": 896,
         "stargazers_count": 0,
         "watchers_count": 0,
         "language": "Python",

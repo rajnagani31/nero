@@ -51,6 +51,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: codebot-backend:latest
     container_name: codebot-backend
     env_file:
       - .env
@@ -65,7 +66,7 @@ services:
       QDRANT_HOST: vector_db
       QDRANT_PORT: "6333"
       QDRANT_URL: http://vector_db:6333
-      AUTO_CREATE_SCHEMA: "true"
+      AUTO_CREATE_SCHEMA: "false"
       FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:3000}
     depends_on:
       db:
@@ -91,9 +92,7 @@ services:
     restart: unless-stopped
 
   celery_worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: codebot-backend:latest
     container_name: codebot-celery-worker
     env_file:
       - .env
@@ -107,12 +106,15 @@ services:
       QDRANT_HOST: vector_db
       QDRANT_PORT: "6333"
       QDRANT_URL: http://vector_db:6333
+      SKIP_MIGRATIONS: "true"
     command: celery -A apps.backend.bot.application.core.celery:celery_app worker --loglevel=INFO
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+      backend:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

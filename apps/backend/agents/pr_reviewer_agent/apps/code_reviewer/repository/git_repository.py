@@ -1,9 +1,14 @@
+import logging
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from apps.backend.agents.pr_reviewer_agent.apps.llm_provider.model.user_ai_quota import UserAIQuota
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.pull_request import (
     PullRequest,
 )
 from sqlalchemy import select
 from sqlalchemy import case, func, update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import IntegrityError
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.repository import (
     Repository,
 )
@@ -65,6 +70,14 @@ class CodeReviewRepository:
                 session.flush()
 
             if pr_data.review_job is not None:
+                user_tier = "free"
+                if pr.user_id:
+                    user_quota = session.execute(
+                        select(UserAIQuota).where(UserAIQuota.user_id == pr.user_id)
+                    ).scalar_one_or_none()
+                    if user_quota:
+                        user_tier = user_quota.tier or "free"
+
                 review_job = ReviewJob(
                     pr_id=pr.id,
                     status=pr_data.review_job.status,
@@ -74,6 +87,7 @@ class CodeReviewRepository:
                     queued_at=pr_data.review_job.queued_at,
                     base_sha=pr_data.review_job.base_sha,
                     head_sha=pr_data.review_job.head_sha,
+                    user_tier=user_tier,
                 )
                 session.add(review_job)
 
@@ -397,6 +411,7 @@ class CodeReviewRepository:
 
             context["review_job_id"] = review_job.id
             context["review_job_status"] = review_job.status
+            context["user_tier"] = review_job.user_tier
             context["base_sha"] = review_job.base_sha
             context["head_sha"] = review_job.head_sha
             context["review_status"] = review_job.review_status
@@ -483,18 +498,42 @@ class CodeReviewRepository:
         finally:
             session.close()
 
-    def mark_review_job_succeeded(self, review_job_id: int, final_review: dict) -> None:
+    def mark_review_job_succeeded(
+        self,
+        review_job_id: int,
+        final_review: dict,
+        *,
+        status: ReviewJobStatusEnum = ReviewJobStatusEnum.SUCCEEDED,
+        primary_provider: str | None = None,
+        model_name: str | None = None,
+        fallback_used: bool = False,
+        fallback_reason: str | None = None,
+        total_prompt_tokens: int = 0,
+        total_completion_tokens: int = 0,
+        total_tokens: int = 0,
+        total_latency_ms: int = 0,
+        credits_deducted: Decimal = Decimal("0.0000"),
+    ) -> None:
         session = self.session_factory()
         try:
             session.execute(
                 update(ReviewJob)
                 .where(ReviewJob.id == review_job_id)
                 .values(
-                    status=ReviewJobStatusEnum.SUCCEEDED,
+                    status=status,
                     processed_files=ReviewJob.total_files,
                     finished_at=func.now(),
                     error_code=None,
                     final_review_json=final_review,
+                    primary_provider=primary_provider,
+                    model_name=model_name,
+                    fallback_used=fallback_used,
+                    fallback_reason=(fallback_reason[:255] if fallback_reason else None),
+                    total_prompt_tokens=total_prompt_tokens,
+                    total_completion_tokens=total_completion_tokens,
+                    total_tokens=total_tokens,
+                    total_latency_ms=total_latency_ms,
+                    credits_deducted=credits_deducted,
                 )
             )
             session.commit()
@@ -532,6 +571,12 @@ class CodeReviewRepository:
         findings: list,
         summary: str,
         metadata: dict | None = None,
+        provider_used: str | None = None,
+        model_used: str | None = None,
+        prompt_tokens: int = 0,
+        completion_tokens: int = 0,
+        latency_ms: int = 0,
+        attempts: int = 1,
     ) -> None:
         session = self.session_factory()
         try:
@@ -539,17 +584,30 @@ class CodeReviewRepository:
                 job_id=review_job_id,
                 filename=filename,
                 status=status,
+                attempts=attempts,
                 findings_json=findings,
                 summary=summary,
                 metadata_json=metadata or {},
+                provider_used=provider_used,
+                model_used=model_used,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                latency_ms=latency_ms,
             )
             stmt = stmt.on_conflict_do_update(
                 constraint="uq_review_file_results_job_file",
                 set_={
                     "status": stmt.excluded.status,
+                    "attempts": ReviewFileResult.attempts + 1,
                     "findings_json": stmt.excluded.findings_json,
                     "summary": stmt.excluded.summary,
                     "metadata_json": stmt.excluded.metadata_json,
+                    "provider_used": stmt.excluded.provider_used,
+                    "model_used": stmt.excluded.model_used,
+                    "prompt_tokens": stmt.excluded.prompt_tokens,
+                    "completion_tokens": stmt.excluded.completion_tokens,
+                    "latency_ms": stmt.excluded.latency_ms,
+                    "updated_at": func.now(),
                 },
             )
             session.execute(stmt)
@@ -557,6 +615,55 @@ class CodeReviewRepository:
         except Exception:
             session.rollback()
             raise
+        finally:
+            session.close()
+
+    def queue_file_review_results(self, review_job_id: int, filenames: list[str]) -> None:
+        """Pre-registers changed files in queued status."""
+        session = self.session_factory()
+        try:
+            for fname in filenames:
+                stmt = insert(ReviewFileResult).values(
+                    job_id=review_job_id,
+                    filename=fname,
+                    status="queued",
+                    attempts=1,
+                    findings_json=[],
+                    summary="",
+                    metadata_json={},
+                ).on_conflict_do_nothing(
+                    constraint="uq_review_file_results_job_file"
+                )
+                session.execute(stmt)
+            session.commit()
+        except Exception:
+            session.rollback()
+        finally:
+            session.close()
+
+    def mark_file_review_processing(self, review_job_id: int, filename: str) -> None:
+        """Marks a file as currently processing by a worker."""
+        session = self.session_factory()
+        try:
+            stmt = insert(ReviewFileResult).values(
+                job_id=review_job_id,
+                filename=filename,
+                status="processing",
+                attempts=1,
+                findings_json=[],
+                summary="",
+                metadata_json={},
+            ).on_conflict_do_update(
+                constraint="uq_review_file_results_job_file",
+                set_={
+                    "status": "processing",
+                    "updated_at": func.now(),
+                },
+            )
+            session.execute(stmt)
+            session.commit()
+        except Exception:
+            session.rollback()
         finally:
             session.close()
 
@@ -664,3 +771,86 @@ class CodeReviewRepository:
         finally:
             session.close()
 
+
+    def record_quota_usage_for_job(
+        self, review_job_id: int, credits_to_deduct: Decimal = Decimal("0.0000")
+    ) -> Decimal:
+        """
+        Concurrency-safe quota deduction using row-level locking (with_for_update).
+        Resets monthly counters when 30-day period expires.
+        Returns the exact Decimal amount deducted.
+        """
+        actual_deducted = Decimal("0.0000")
+        session = self.session_factory()
+        try:
+            job = session.execute(
+                select(ReviewJob).where(ReviewJob.id == review_job_id)
+            ).scalar_one_or_none()
+            if not job:
+                return actual_deducted
+
+            # Idempotency check: if already deducted for this job, do not charge again
+            if job.credits_deducted and job.credits_deducted > Decimal("0.0000"):
+                return job.credits_deducted
+
+            pr = session.execute(
+                select(PullRequest).where(PullRequest.id == job.pr_id)
+            ).scalar_one_or_none()
+            if not pr or not pr.user_id:
+                return actual_deducted
+
+            now = datetime.now(timezone.utc)
+
+            quota = session.execute(
+                select(UserAIQuota)
+                .where(UserAIQuota.user_id == pr.user_id)
+                .with_for_update()
+            ).scalar_one_or_none()
+
+            if not quota:
+                try:
+                    quota = UserAIQuota(
+                        user_id=pr.user_id,
+                        tier=job.user_tier or "free",
+                        monthly_pr_quota=15,
+                        prs_reviewed_this_month=1,
+                        credit_balance=Decimal("0.00"),
+                        period_start=now,
+                        period_end=now + timedelta(days=30),
+                    )
+                    session.add(quota)
+                    session.commit()
+                    return actual_deducted
+                except IntegrityError:
+                    session.rollback()
+                    quota = session.execute(
+                        select(UserAIQuota)
+                        .where(UserAIQuota.user_id == pr.user_id)
+                        .with_for_update()
+                    ).scalar_one_or_none()
+                    if not quota:
+                        return actual_deducted
+
+            period_end = quota.period_end
+            if period_end:
+                if period_end.tzinfo is None:
+                    period_end = period_end.replace(tzinfo=timezone.utc)
+                if now >= period_end:
+                    quota.period_start = now
+                    quota.period_end = now + timedelta(days=30)
+                    quota.prs_reviewed_this_month = 0
+
+            quota.prs_reviewed_this_month += 1
+
+            if credits_to_deduct > 0 and quota.credit_balance > 0:
+                actual_deducted = min(quota.credit_balance, credits_to_deduct)
+                quota.credit_balance -= actual_deducted
+
+            session.commit()
+            return actual_deducted
+        except Exception:
+            session.rollback()
+            logging.getLogger(__name__).warning("Failed to record quota usage for job %s", review_job_id, exc_info=True)
+            return actual_deducted
+        finally:
+            session.close()

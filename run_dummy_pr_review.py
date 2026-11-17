@@ -13,6 +13,7 @@ from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.schema.pr_schema i
     PullRequestFile,
 )
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.model.review_job import ReviewJob
+from apps.backend.agents.pr_reviewer_agent.apps.llm_provider.model.ai_call_log import AICallLog
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.tasks import (
     aggregate_review,
     review_file,
@@ -27,7 +28,6 @@ def run_test():
     # 1. Initialize CodeReviewService and Repository
     repository = CodeReviewRepository(SessionLocal)
     service = CodeReviewService(repository)
-
 
     # 2. Build dummy GitHub payload (simulates incoming webhook payload)
     dummy_payload = {
@@ -136,7 +136,6 @@ def run_test():
 
     if SIMULATE_AGGREGATION_ERROR:
         print("[TEST MODE] SIMULATE_AGGREGATION_ERROR is True! Injecting invalid file result to force aggregate_review failure...")
-        # Dispatch aggregate_review with invalid data directly to force failure
         async_result = aggregate_review.delay([{"invalid_key": "force_fail"}], review_job_id)
         print(f"[INFO] Dispatched failing aggregate_review Task ID: {async_result.id}")
     else:
@@ -144,12 +143,13 @@ def run_test():
         async_result = chord(header)(aggregate_review.s(review_job_id))
         print(f"[INFO] Celery Chord enqueued! Chord Callback Task ID: {async_result.id}")
 
-
     # 5. Poll database for job progress and completion
     print("\n[POLLING] Waiting for local database job progress...")
     session = SessionLocal()
     try:
-        for step in range(30):
+        current_job = None
+        status_str = "QUEUED"
+        for step in range(45):
             time.sleep(1)
             session.expire_all()
             current_job = (
@@ -169,40 +169,54 @@ def run_test():
             print(
                 f"   [Step {step+1:02d}] Status: {status_str:<10} | Processed: {current_job.processed_files}/{current_job.total_files} files"
             )
-            if status_str in ("SUCCEEDED", "FAILED"):
+            if status_str in ("SUCCEEDED", "FAILED", "succeeded", "failed"):
                 break
 
         print("\n" + "=" * 50)
         print("--- FINAL DB REVIEW JOB RESULT ---")
         print("=" * 50)
-        print(f"Job ID:          {current_job.id}")
-        print(f"Status:          {status_str}")
-        print(f"Error Code:      {current_job.error_code}")
-        print(f"Total Files:     {current_job.total_files}")
-        print(f"Processed Files: {current_job.processed_files}")
-        
-        final_json = current_job.final_review_json or {}
-        print(f"Summary:         {final_json.get('summary')}")
-        print(f"Total Findings:  {final_json.get('total_findings')}")
-        print(f"Severities:      {final_json.get('findings_by_severity')}")
-        
-        files_reviewed = final_json.get("files", [])
-        if files_reviewed:
-            print("\n--- PER-FILE AI REVIEW FINDINGS ---")
-            for f_rev in files_reviewed:
-                print(f"\n[FILE] {f_rev.get('filename')} (Skipped: {f_rev.get('skipped')})")
-                print(f"   Summary:  {f_rev.get('summary')}")
+        if current_job:
+            print(f"Job ID:          {current_job.id}")
+            print(f"Status:          {status_str}")
+            print(f"Error Code:      {current_job.error_code}")
+            print(f"Total Files:     {current_job.total_files}")
+            print(f"Processed Files: {current_job.processed_files}")
+            print(f"Provider:        {getattr(current_job, 'primary_provider', None)}")
+            print(f"Model Name:      {getattr(current_job, 'model_name', None)}")
+            print(f"Fallback Used:   {getattr(current_job, 'fallback_used', False)}")
+            print(f"Fallback Reason: {getattr(current_job, 'fallback_reason', None)}")
+            print(f"Total Tokens:    {getattr(current_job, 'total_tokens', 0)} (Prompt: {getattr(current_job, 'total_prompt_tokens', 0)}, Comp: {getattr(current_job, 'total_completion_tokens', 0)})")
+            print(f"Total Latency:   {getattr(current_job, 'total_latency_ms', 0)} ms")
+            print(f"Credits Deduct:  {getattr(current_job, 'credits_deducted', 0)}")
+            
+            final_json = current_job.final_review_json or {}
+            print(f"Summary:         {final_json.get('summary')}")
+            print(f"Total Findings:  {final_json.get('total_findings')}")
+            print(f"Severities:      {final_json.get('findings_by_severity')}")
+            
+            files_reviewed = final_json.get("files", [])
+            if files_reviewed:
+                print("\n--- PER-FILE AI REVIEW FINDINGS ---")
+                for f_rev in files_reviewed:
+                    print(f"\n[FILE] {f_rev.get('filename')} (Skipped: {f_rev.get('skipped')})")
+                    print(f"   Summary:  {f_rev.get('summary')}")
 
-                findings = f_rev.get("findings", [])
-                if findings:
-                    print("   Findings:")
-                    for finding in findings:
-                        print(f"     - [{finding.get('severity', 'info').upper()}] ({finding.get('category')}): {finding.get('title') or finding.get('message')}")
-                        if finding.get("suggestion"):
-                            print(f"       Suggestion: {finding.get('suggestion')}")
-                else:
-                    print("   No findings reported for this file.")
+                    findings = f_rev.get("findings", [])
+                    if findings:
+                        print("   Findings:")
+                        for finding in findings:
+                            print(f"     - [{finding.get('severity', 'info').upper()}] ({finding.get('category')}): {finding.get('title') or finding.get('message')}")
+                            if finding.get("recommendation"):
+                                print(f"       Recommendation: {finding.get('recommendation')}")
+                    else:
+                        print("   No findings reported for this file.")
 
+            # Query and display granular call audit logs
+            logs = session.query(AICallLog).filter(AICallLog.job_id == current_job.id).all()
+            if logs:
+                print("\n--- AI CALL AUDIT LOGS (ai_call_logs) ---")
+                for l in logs:
+                    print(f"  [Call #{l.id}] File: {l.filename} | Provider: {l.provider} ({l.key_alias}) | Model: {l.model_name} | Status: {l.status_code} | Latency: {l.latency_ms}ms | Tokens: {l.prompt_tokens + l.completion_tokens}")
         print("=" * 50)
     finally:
         session.close()
@@ -210,7 +224,3 @@ def run_test():
 
 if __name__ == "__main__":
     run_test()
-
-
-
-

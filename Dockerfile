@@ -1,7 +1,7 @@
 # ---- Backend build ----
 
 # -> Tha base image we build on top of. Every Dockerfile starts with FROM.
-FROM python:3.11-slim AS backend 
+FROM python:3.13-slim AS backend 
 
 # PYTHONDONTWRITEBYTECODE=1 Don't create and write .pyc files. Saves disk space in docker, since we don't need bytecode cache
 # PYTHONUNBUFFERED=1 Don't buffer output, so logs are immediately flushed to the console. This is important for real-time logging in docker containers.
@@ -47,12 +47,16 @@ RUN uv sync --no-dev
 COPY apps/backend  ./apps/backend
 COPY alembic       ./alembic
 COPY alembic.ini   ./alembic.ini
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 # Add virtual environment to PATH
 ENV PATH="/app/.venv/bin:$PATH" 
 
 # EXPOSE is documentation only — it doesn't actually publish the port, just a hint for users and tools that this container listens on this port. Actual port mapping is inside docker-compose.yml.
 EXPOSE 8000
+
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # The command that runs when the container starts.
 CMD ["uvicorn", "apps.backend.bot.application.main:app", "--host", "0.0.0.0", "--port", "8000"]
