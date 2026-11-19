@@ -36,7 +36,7 @@ export const App: React.FC = () => {
 
         {/* Main Product / Dashboard Suite */}
         <Route path="/dashboard" element={<NeroLayout />}>
-          <Route index element={<DashboardOverviewPage />} />
+          <Route index element={<Navigate to="analytics" replace />} />
           <Route path="repositories" element={<RepositoriesPage />} />
           <Route path="pr-reviews" element={<PRReviewsPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />

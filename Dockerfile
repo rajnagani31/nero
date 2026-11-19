@@ -48,7 +48,7 @@ COPY apps/backend  ./apps/backend
 COPY alembic       ./alembic
 COPY alembic.ini   ./alembic.ini
 COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+RUN sed -i 's/\r$//' ./entrypoint.sh && chmod +x ./entrypoint.sh
 
 # Add virtual environment to PATH
 ENV PATH="/app/.venv/bin:$PATH" 
