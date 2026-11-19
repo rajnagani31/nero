@@ -2,10 +2,12 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.routers.github import router as github
+from apps.backend.agents.pr_reviewer_agent.apps.pull_requests.router import router as pull_requests
+from apps.backend.agents.pr_reviewer_agent.apps.analytics.router import router as analytics
 
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI(title="NeroAI Backend Engine")
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,4 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(github, prefix='/api')
+app.include_router(github, prefix="/api")
+app.include_router(pull_requests, prefix="/api")
+app.include_router(analytics, prefix="/api")
