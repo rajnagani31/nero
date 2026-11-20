@@ -9,9 +9,11 @@ interface CommentRatingsPanelProps {
 export const CommentRatingsPanel: React.FC<CommentRatingsPanelProps> = ({
   data,
 }) => {
-  const totalVotes = data.upvotes + data.downvotes;
+  const upvotes = data?.upvotes || 0;
+  const downvotes = data?.downvotes || 0;
+  const totalVotes = upvotes + downvotes;
   const satisfactionRate =
-    totalVotes > 0 ? Math.round((data.upvotes / totalVotes) * 100) : 100;
+    totalVotes > 0 ? Math.round((upvotes / totalVotes) * 100) : 100;
 
   return (
     <div className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-5 space-y-4">
@@ -40,7 +42,7 @@ export const CommentRatingsPanel: React.FC<CommentRatingsPanelProps> = ({
             <ThumbsUp className="h-4 w-4" />
           </div>
           <div className="text-2xl font-bold font-mono tabular-nums text-emerald-400">
-            {data.upvotes}
+            {upvotes}
           </div>
           <div className="text-[11px] text-[var(--nero-mu,#9a9a9a)]">
             Marked as accurate findings
@@ -54,7 +56,7 @@ export const CommentRatingsPanel: React.FC<CommentRatingsPanelProps> = ({
             <ThumbsDown className="h-4 w-4" />
           </div>
           <div className="text-2xl font-bold font-mono tabular-nums text-rose-400">
-            {data.downvotes}
+            {downvotes}
           </div>
           <div className="text-[11px] text-[var(--nero-mu,#9a9a9a)]">
             Ignored or false positives

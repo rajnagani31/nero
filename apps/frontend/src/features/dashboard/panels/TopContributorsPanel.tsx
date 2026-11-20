@@ -16,9 +16,12 @@ interface TopContributorsPanelProps {
 }
 
 export const TopContributorsPanel: React.FC<TopContributorsPanelProps> = ({
-  series,
-  breakdown,
+  series = [],
+  breakdown = [],
 }) => {
+  const safeSeries = Array.isArray(series) ? series : [];
+  const safeBreakdown = Array.isArray(breakdown) ? breakdown : [];
+
   return (
     <div className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-5 space-y-4">
       {/* Header */}
@@ -33,7 +36,7 @@ export const TopContributorsPanel: React.FC<TopContributorsPanelProps> = ({
           </p>
         </div>
         <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf2,#1a1a1a)] text-[var(--nero-tx,#ededed)]">
-          {breakdown.length} Authors
+          {safeBreakdown.length} Authors
         </span>
       </div>
 
@@ -41,7 +44,7 @@ export const TopContributorsPanel: React.FC<TopContributorsPanelProps> = ({
       <div className="h-[200px] w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={series}
+            data={safeSeries}
             layout="vertical"
             margin={{ top: 10, right: 20, left: 20, bottom: 0 }}
           >
@@ -91,7 +94,7 @@ export const TopContributorsPanel: React.FC<TopContributorsPanelProps> = ({
           Leaderboard
         </div>
         <div className="space-y-1.5">
-          {breakdown.map((item, idx) => (
+          {safeBreakdown.map((item, idx) => (
             <div
               key={item.handle}
               className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-[var(--nero-sf2,#1a1a1a)] transition-colors"

@@ -16,10 +16,12 @@ interface AddressedRatePanelProps {
 }
 
 export const AddressedRatePanel: React.FC<AddressedRatePanelProps> = ({
-  series,
-  breakdown,
+  series = [],
+  breakdown = [],
 }) => {
-  const currentRate = series.length > 0 ? series[series.length - 1].value : 96;
+  const safeSeries = Array.isArray(series) ? series : [];
+  const safeBreakdown = Array.isArray(breakdown) ? breakdown : [];
+  const currentRate = safeSeries.length > 0 ? safeSeries[safeSeries.length - 1]?.value || 96 : 96;
 
   return (
     <div className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-5 space-y-4">
@@ -43,7 +45,7 @@ export const AddressedRatePanel: React.FC<AddressedRatePanelProps> = ({
       {/* Chart Canvas */}
       <div className="h-[200px] w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={safeSeries} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="addressedRateGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
@@ -96,7 +98,7 @@ export const AddressedRatePanel: React.FC<AddressedRatePanelProps> = ({
           Addressed Rate by Repository
         </div>
         <div className="space-y-1.5">
-          {breakdown.map((item) => (
+          {safeBreakdown.map((item) => (
             <div
               key={item.repo_name}
               className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-[var(--nero-sf2,#1a1a1a)] transition-colors"

@@ -153,7 +153,61 @@ export async function fetchAnalyticsCharts(
     if (res.ok) {
       const data = await res.json();
       if (data && data.prs_reviewed) {
-        return data;
+        return {
+          period: data.period || "this_month",
+          group_by: data.group_by || "day",
+          prs_reviewed: {
+            series: Array.isArray(data.prs_reviewed.series) ? data.prs_reviewed.series : [],
+            breakdown: Array.isArray(data.prs_reviewed.breakdown)
+              ? data.prs_reviewed.breakdown
+              : Array.isArray(data.prs_reviewed.top_repos)
+              ? data.prs_reviewed.top_repos
+              : [],
+          },
+          bugs_caught: {
+            series: Array.isArray(data.bugs_caught.series) ? data.bugs_caught.series : [],
+            breakdown: Array.isArray(data.bugs_caught.breakdown)
+              ? data.bugs_caught.breakdown
+              : Array.isArray(data.bugs_caught.top_repos)
+              ? data.bugs_caught.top_repos
+              : [],
+            severity_breakdown: data.bugs_caught.severity_breakdown || data.bugs_caught.severity || {
+              critical: 0,
+              high: 0,
+              medium: 0,
+              low: 0,
+            },
+          },
+          avg_merge_time: {
+            series: Array.isArray(data.avg_merge_time.series) ? data.avg_merge_time.series : [],
+            breakdown: Array.isArray(data.avg_merge_time.breakdown)
+              ? data.avg_merge_time.breakdown
+              : Array.isArray(data.avg_merge_time.top_repos)
+              ? data.avg_merge_time.top_repos
+              : [],
+          },
+          top_contributors: {
+            series: Array.isArray(data.top_contributors.series) ? data.top_contributors.series : [],
+            breakdown: Array.isArray(data.top_contributors.breakdown)
+              ? data.top_contributors.breakdown
+              : Array.isArray(data.top_contributors.contributors)
+              ? data.top_contributors.contributors
+              : [],
+          },
+          addressed_rate: {
+            series: Array.isArray(data.addressed_rate.series) ? data.addressed_rate.series : [],
+            breakdown: Array.isArray(data.addressed_rate.breakdown)
+              ? data.addressed_rate.breakdown
+              : Array.isArray(data.addressed_rate.top_repos)
+              ? data.addressed_rate.top_repos
+              : [],
+          },
+          comment_ratings: data.comment_ratings || {
+            upvotes: 0,
+            downvotes: 0,
+            most_upvoted_comments: [],
+          },
+        };
       }
     }
   } catch {
