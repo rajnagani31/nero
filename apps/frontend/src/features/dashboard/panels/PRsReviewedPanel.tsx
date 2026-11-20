@@ -16,10 +16,12 @@ interface PRsReviewedPanelProps {
 }
 
 export const PRsReviewedPanel: React.FC<PRsReviewedPanelProps> = ({
-  series,
-  breakdown,
+  series = [],
+  breakdown = [],
 }) => {
-  const totalInPeriod = series.reduce((acc, curr) => acc + curr.value, 0);
+  const safeSeries = Array.isArray(series) ? series : [];
+  const safeBreakdown = Array.isArray(breakdown) ? breakdown : [];
+  const totalInPeriod = safeSeries.reduce((acc, curr) => acc + (curr?.value || 0), 0);
 
   return (
     <div className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-5 space-y-4">
@@ -42,7 +44,7 @@ export const PRsReviewedPanel: React.FC<PRsReviewedPanelProps> = ({
       {/* Chart Canvas */}
       <div className="h-[200px] w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <BarChart data={safeSeries} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <XAxis
               dataKey="label"
               stroke="#52525b"
@@ -87,7 +89,7 @@ export const PRsReviewedPanel: React.FC<PRsReviewedPanelProps> = ({
           Top Repositories
         </div>
         <div className="space-y-1.5">
-          {breakdown.map((item) => (
+          {safeBreakdown.map((item) => (
             <div
               key={item.repo_name}
               className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-[var(--nero-sf2,#1a1a1a)] transition-colors"

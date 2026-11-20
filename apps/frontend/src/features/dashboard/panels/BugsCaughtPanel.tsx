@@ -18,12 +18,14 @@ interface BugsCaughtPanelProps {
 }
 
 export const BugsCaughtPanel: React.FC<BugsCaughtPanelProps> = ({
-  series,
-  breakdown,
+  series = [],
+  breakdown = [],
   severityBreakdown = { critical: 4, high: 5, medium: 6, low: 2 },
 }) => {
+  const safeSeries = Array.isArray(series) ? series : [];
+  const safeBreakdown = Array.isArray(breakdown) ? breakdown : [];
   const [viewMode, setViewMode] = useState<"trend" | "severity">("trend");
-  const totalBugs = series.reduce((acc, curr) => acc + curr.value, 0);
+  const totalBugs = safeSeries.reduce((acc, curr) => acc + (curr?.value || 0), 0);
 
   const severityData = [
     { label: "Critical", value: severityBreakdown.critical, fill: "#f43f5e" },
@@ -79,7 +81,7 @@ export const BugsCaughtPanel: React.FC<BugsCaughtPanelProps> = ({
       <div className="h-[200px] w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
           {viewMode === "trend" ? (
-            <BarChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <BarChart data={safeSeries} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <XAxis
                 dataKey="label"
                 stroke="#52525b"
@@ -157,7 +159,7 @@ export const BugsCaughtPanel: React.FC<BugsCaughtPanelProps> = ({
           Repos with Most Bugs
         </div>
         <div className="space-y-1.5">
-          {breakdown.map((item) => (
+          {safeBreakdown.map((item) => (
             <div
               key={item.repo_name}
               className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-[var(--nero-sf2,#1a1a1a)] transition-colors"
