@@ -625,3 +625,39 @@ body {
     align-self: flex-start;
   }
 }
+
+/* ─── Nero AI Modern Design System Tokens ───────────────────────── */
+:root {
+  --nero-bg: #0a0a0a;
+  --nero-sf: #111111;
+  --nero-sf2: #1a1a1a;
+  --nero-bd: #262626;
+  --nero-tx: #ededed;
+  --nero-mu: #9a9a9a;
+  --nero-g: #19e68c;
+  --nero-gd: #0f2e22;
+  --nero-on: #04130c;
+  --nero-red: #ff7a7a;
+  --nero-amb: #ffc857;
+}
+
+:root[data-theme="light"] {
+  --nero-bg: #f6f7f6;
+  --nero-sf: #ffffff;
+  --nero-sf2: #eef0ee;
+  --nero-bd: #dcdfdc;
+  --nero-tx: #111111;
+  --nero-mu: #5c635f;
+  --nero-g: #0a8f5a;
+  --nero-gd: #d9f5e8;
+  --nero-on: #ffffff;
+  --nero-red: #c0392b;
+  --nero-amb: #946200;
+}
+
+.nero-shell {
+  background-color: var(--nero-bg);
+  color: var(--nero-tx);
+  min-height: 100vh;
+}
+
