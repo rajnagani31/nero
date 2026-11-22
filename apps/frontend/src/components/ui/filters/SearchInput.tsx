@@ -8,6 +8,7 @@ interface SearchInputProps {
   placeholder?: string;
   debounceMs?: number;
   className?: string;
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -16,6 +17,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = "Search pull requests or click to add filters",
   debounceMs = 300,
   className,
+  inputRef,
 }) => {
   const [internalValue, setInternalValue] = useState(value);
 
@@ -49,13 +51,18 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     >
       <Search className="h-4 w-4 text-[var(--nero-mu,#9a9a9a)] shrink-0" />
       <input
+        ref={inputRef}
         type="text"
         value={internalValue}
         onChange={(e) => setInternalValue(e.target.value)}
         placeholder={placeholder}
         className="w-full bg-transparent border-0 text-sm text-[var(--nero-tx,#ededed)] placeholder:text-[var(--nero-mu,#9a9a9a)] outline-none"
       />
-      {internalValue && (
+      {!internalValue ? (
+        <kbd className="hidden sm:inline-flex items-center justify-center h-5 px-1.5 rounded border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf2,#1a1a1a)] text-[10px] font-mono text-[var(--nero-mu,#9a9a9a)] select-none pointer-events-none">
+          /
+        </kbd>
+      ) : (
         <button
           type="button"
           onClick={handleClear}
