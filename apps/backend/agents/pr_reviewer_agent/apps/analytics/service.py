@@ -216,11 +216,11 @@ class AnalyticsService:
         return AnalyticsChartsResponse(
             period=filters.period or "month",
             group_by=filters.group_by or "day",
-            prs_reviewed={"series": prs_series, "top_repos": repo_reviews},
-            bugs_caught={"series": bugs_series, "top_repos": repo_bugs, "severity": severity.dict()},
-            avg_merge_time={"series": merge_series, "top_repos": repo_merge},
-            top_contributors={"series": contributors_series, "contributors": top_contribs},
-            addressed_rate={"series": addressed_series, "top_repos": repo_addressed},
+            prs_reviewed={"series": prs_series, "top_repos": repo_reviews, "breakdown": repo_reviews},
+            bugs_caught={"series": bugs_series, "top_repos": repo_bugs, "breakdown": repo_bugs, "severity": severity.dict(), "severity_breakdown": severity.dict()},
+            avg_merge_time={"series": merge_series, "top_repos": repo_merge, "breakdown": repo_merge},
+            top_contributors={"series": contributors_series, "contributors": top_contribs, "breakdown": top_contribs},
+            addressed_rate={"series": addressed_series, "top_repos": repo_addressed, "breakdown": repo_addressed},
             comment_ratings=ratings,
         )
 
