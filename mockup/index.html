@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nero Analytics - Greptile UI Mockup</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- TOP NAVIGATION BAR -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <!-- Nero Brand Logo -->
+      <a href="#" class="brand-logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7V17L12 22L21 17V7L12 2Z" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 6L7 9V15L12 18L17 15V9L12 6Z" fill="#10B981" fill-opacity="0.2" stroke="#10B981" stroke-width="1.5"/>
+          <path d="M12 10L9.5 11.5V14.5L12 16L14.5 14.5V11.5L12 10Z" fill="#10B981"/>
+        </svg>
+        <span class="brand-name">nero</span>
+        <span class="role-badge">Admin</span>
+        <svg class="chevron-sort" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+      </a>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 16l4-4 4 4 5-6"/></svg>
+          Analytics
+        </button>
+        <button class="nav-tab">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18M12 3a9 9 0 0 1 0 18M3 12h18"/></svg>
+          Memory
+        </button>
+        <button class="nav-tab">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>
+          Pull Requests
+        </button>
+        <button class="nav-tab">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </button>
+      </nav>
+    </div>
+
+    <!-- Right Header Actions -->
+    <div class="nav-right">
+      <button class="nav-icon-btn" title="Help">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+      </button>
+      <button class="nav-icon-btn" title="Changelog">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="0"/><path d="M16 8V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3M12 12v4M10 14h4"/></svg>
+      </button>
+      <button class="nav-avatar-btn" title="User Profile">
+        <div class="user-avatar-circle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="page-container">
+    <!-- GLOBAL FILTER TOOLBAR -->
+    <section class="filter-toolbar">
+      <div class="filter-group">
+        <!-- Teams Dropdown -->
+        <div class="dropdown-wrapper" id="teamsDropdownWrapper">
+          <button class="filter-btn" id="teamsBtn">
+            <svg class="filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span id="teamsLabel">All teams</span>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="popover-panel" id="teamsPopover">
+            <div class="popover-title">Teams</div>
+            <div class="checkbox-list">
+              <label class="checkbox-item">
+                <input type="checkbox" checked id="teamAll">
+                <span class="custom-chk"></span>
+                <span>All teams</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" checked class="team-chk" value="Core Engineering">
+                <span class="custom-chk"></span>
+                <span>Core Engineering</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" checked class="team-chk" value="Platform AI">
+                <span class="custom-chk"></span>
+                <span>Platform AI</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" checked class="team-chk" value="Product Frontend">
+                <span class="custom-chk"></span>
+                <span>Product Frontend</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Repositories Dropdown (Screenshot 7 & 9) -->
+        <div class="dropdown-wrapper" id="reposDropdownWrapper">
+          <button class="filter-btn" id="reposBtn">
+            <svg class="filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span id="reposLabel">All repositories</span>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="popover-panel popover-repos" id="reposPopover">
+            <div class="popover-title">Repositories</div>
+            <div class="search-box">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="Search repositories..." id="repoSearchInput">
+            </div>
+            <div class="checkbox-list scrollable" id="reposList">
+              <label class="checkbox-item">
+                <input type="checkbox" checked id="repoAll">
+                <span class="custom-chk"></span>
+                <span class="item-text">All repositories</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/adigy">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/adigy">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/adigy</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/ai-bot">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/ai-bot">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/ai-bot</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/ai-todo">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/ai-todo">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/ai-todo</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/coding-agent">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/coding-agent">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/coding-agent</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/django-learning">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/django-learning">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/django-learni...</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/drf">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/drf">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/drf</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/dsa">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/dsa">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/dsa</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/fastapi">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/fastapi">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/fastapi</span>
+              </label>
+              <label class="checkbox-item repo-item" data-repo="rajnagani31/nero">
+                <input type="checkbox" checked class="repo-chk" value="rajnagani31/nero">
+                <span class="custom-chk"></span>
+                <span class="item-text">rajnagani31/nero</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Authors Dropdown -->
+        <div class="dropdown-wrapper" id="authorsDropdownWrapper">
+          <button class="filter-btn" id="authorsBtn">
+            <svg class="filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span id="authorsLabel">All auth...</span>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="popover-panel" id="authorsPopover">
+            <div class="popover-title">Authors</div>
+            <div class="checkbox-list">
+              <label class="checkbox-item">
+                <input type="checkbox" checked id="authorAll">
+                <span class="custom-chk"></span>
+                <span>All authors</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" checked class="author-chk" value="rajnagani31">
+                <span class="custom-chk"></span>
+                <span>@rajnagani31</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" checked class="author-chk" value="denis">
+                <span class="custom-chk"></span>
+                <span>@denis</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeframe + Granularity Dropdown (Screenshot 8) -->
+        <div class="dropdown-wrapper" id="timeframeDropdownWrapper">
+          <button class="filter-btn" id="timeframeBtn">
+            <svg class="filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="0"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="timeframeLabel">This month</span>
+            <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="popover-panel popover-timeframe" id="timeframePopover">
+            <div class="popover-section-label">Timeframe</div>
+            <div class="timeframe-options">
+              <button class="tf-item" data-tf="All time">All time</button>
+              <button class="tf-item" data-tf="This week">This week</button>
+              <button class="tf-item active" data-tf="This month">This month</button>
+              <button class="tf-item" data-tf="This quarter">This quarter</button>
+              <button class="tf-item" data-tf="This year">This year</button>
+              <button class="tf-item" data-tf="Custom">Custom</button>
+            </div>
+
+            <div class="popover-divider"></div>
+
+            <div class="popover-section-label">Granularity</div>
+            <div class="granularity-pills">
+              <button class="gran-pill active" data-gran="Day">Day</button>
+              <button class="gran-pill" data-gran="Week">Week</button>
+              <button class="gran-pill" data-gran="Month">Month</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Button -->
+      <div class="filter-actions">
+        <button class="export-btn" id="exportBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>Export</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- MAIN SUMMARY BOX SECTION (Screenshot 6) -->
+    <section class="summary-section">
+      <!-- Sub-Tabs above summary box -->
+      <div class="summary-subtabs">
+        <button class="subtab-btn active" id="tabPrReviews">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          PR Reviews
+        </button>
+        <button class="subtab-btn" id="tabBugsCaught">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M2 10h4M18 10h4M3 17l4-2M17 15l4 2M12 7a5 5 0 0 1 5 5v5a5 5 0 0 1-10 0v-5a5 5 0 0 1 5-5z"/></svg>
+          Bugs Caught
+        </button>
+      </div>
+
+      <!-- Unified 1 Summary Box Card with 4 Metrics -->
+      <div class="summary-card">
+        <div class="stat-col">
+          <div class="stat-label">Total PRs</div>
+          <div class="stat-value-row">
+            <span class="stat-num" id="statTotalPrs">2</span>
+            <span class="stat-badge badge-neutral">±0%</span>
+          </div>
+        </div>
+
+        <div class="stat-col">
+          <div class="stat-label">Total Reviews</div>
+          <div class="stat-value-row">
+            <span class="stat-num" id="statTotalReviews">7</span>
+            <span class="stat-badge badge-positive">+40%</span>
+          </div>
+        </div>
+
+        <div class="stat-col">
+          <div class="stat-label">Avg Merge Time</div>
+          <div class="stat-value-row">
+            <span class="stat-num" id="statAvgMergeTime">11.6d</span>
+            <span class="stat-badge badge-positive">-56%</span>
+          </div>
+        </div>
+
+        <div class="stat-col">
+          <div class="stat-label"># of bugs caught</div>
+          <div class="stat-value-row">
+            <span class="stat-num" id="statBugsCaught">43</span>
+            <span class="stat-subtext">in 2 repos</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 KPI PANELS 2-COLUMN SQUARE GRID -->
+    <section class="kpi-grid">
+      <!-- ================= PANEL 1: PRS REVIEWED BY NERO ================= -->
+      <div class="kpi-panel" id="panel-kpi1">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg class="panel-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>
+            <span>PRS REVIEWED BY NERO</span>
+          </div>
+          <!-- Metric Dropdown Button (Screenshot 4 & 5) -->
+          <div class="panel-control-dropdown">
+            <button class="panel-select-btn" id="kpi1MetricBtn">
+              <span id="kpi1MetricLabel">Mean comments / PR</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+            </button>
+            <div class="panel-menu" id="kpi1MetricMenu">
+              <button class="menu-item" data-metric="PRs reviewed">PRs reviewed</button>
+              <button class="menu-item" data-metric="Total reviews">Total reviews</button>
+              <button class="menu-item" data-metric="Avg reviews / PR">Avg reviews / PR</button>
+              <button class="menu-item" data-metric="Median comments / PR">Median comments / PR</button>
+              <button class="menu-item active" data-metric="Mean comments / PR">Mean comments / PR <span class="check">✓</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart Container with SVG & Rotated Y-Axis Label -->
+        <div class="chart-wrapper">
+          <div class="chart-y-axis-label" id="kpi1YAxisLabel">MEAN COMMENTS / PR</div>
+          <div class="svg-chart-container">
+            <svg class="kpi-chart" viewBox="0 0 450 180" preserveAspectRatio="none">
+              <!-- Grid lines & Ticks -->
+              <line x1="35" y1="20" x2="440" y2="20" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="24" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">15</text>
+
+              <line x1="35" y1="58" x2="440" y2="58" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="62" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">12</text>
+
+              <line x1="35" y1="96" x2="440" y2="96" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="100" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">8</text>
+
+              <line x1="35" y1="134" x2="440" y2="134" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="138" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">4</text>
+
+              <line x1="35" y1="160" x2="440" y2="160" stroke="#2a2a2a" stroke-width="1"/>
+              <text x="28" y="164" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0</text>
+
+              <!-- Pure White Rectangular Bars (0px radius) -->
+              <rect x="225" y="88" width="9" height="72" fill="#FFFFFF" class="chart-bar"/>
+              <rect x="257" y="125" width="9" height="35" fill="#FFFFFF" class="chart-bar"/>
+              <rect x="289" y="32" width="9" height="128" fill="#FFFFFF" class="chart-bar"/>
+
+              <!-- X-Axis Labels (JetBrains Mono) -->
+              <text x="60" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">1</text>
+              <text x="60" y="185" fill="#555" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">NOV</text>
+              <text x="98" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">3</text>
+              <text x="136" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">6</text>
+              <text x="174" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">8</text>
+              <text x="212" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">10</text>
+              <text x="250" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">13</text>
+              <text x="288" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">15</text>
+              <text x="326" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">17</text>
+              <text x="364" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">20</text>
+              <text x="402" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">22</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Bottom Ranking List -->
+        <div class="panel-footer-list">
+          <div class="footer-title">PRs With Most Comments</div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="pr-title">#51 feat(ai-engine): integrate LangGraph review engine, tiered router, te......</span>
+            </div>
+            <span class="item-count">16</span>
+          </div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="pr-title">#52 Nero 44 <span class="repo-sub">rajnagani31/nero</span></span>
+            </div>
+            <span class="item-count">14</span>
+          </div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="pr-title">#53 Nero 45 <span class="repo-sub">rajnagani31/nero</span></span>
+            </div>
+            <span class="item-count">12</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 2: BUGS CAUGHT ================= -->
+      <div class="kpi-panel" id="panel-kpi2">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg class="panel-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M2 10h4M18 10h4M3 17l4-2M17 15l4 2M12 7a5 5 0 0 1 5 5v5a5 5 0 0 1-10 0v-5a5 5 0 0 1 5-5z"/></svg>
+            <span>BUGS CAUGHT</span>
+          </div>
+          <!-- Severity Dropdown Button -->
+          <div class="panel-control-dropdown">
+            <button class="panel-select-btn" id="kpi2SeverityBtn">
+              <span>All Severity</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+            </button>
+            <div class="panel-menu" id="kpi2SeverityMenu">
+              <button class="menu-item active">All Severity <span class="check">✓</span></button>
+              <button class="menu-item">Critical</button>
+              <button class="menu-item">High</button>
+              <button class="menu-item">Medium</button>
+              <button class="menu-item">Low</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart with Stacked Monochrome Bars -->
+        <div class="chart-wrapper">
+          <div class="chart-y-axis-label">BUGS CAUGHT</div>
+          <div class="svg-chart-container">
+            <svg class="kpi-chart" viewBox="0 0 450 180" preserveAspectRatio="none">
+              <!-- Grid lines & Ticks -->
+              <line x1="35" y1="20" x2="440" y2="20" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="24" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">30</text>
+
+              <line x1="35" y1="58" x2="440" y2="58" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="62" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">24</text>
+
+              <line x1="35" y1="96" x2="440" y2="96" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="100" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">16</text>
+
+              <line x1="35" y1="134" x2="440" y2="134" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="138" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">8</text>
+
+              <line x1="35" y1="160" x2="440" y2="160" stroke="#2a2a2a" stroke-width="1"/>
+              <text x="28" y="164" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0</text>
+
+              <!-- Stacked Monochrome Bars (White & Grayscale Tints, 0px radius) -->
+              <!-- Day 15 Stack -->
+              <rect x="225" y="125" width="9" height="35" fill="#FFFFFF"/>
+              <rect x="225" y="85" width="9" height="40" fill="#BDBDBD"/>
+
+              <!-- Day 17 Stack -->
+              <rect x="257" y="145" width="9" height="15" fill="#FFFFFF"/>
+              <rect x="257" y="135" width="9" height="10" fill="#8A8A8A"/>
+
+              <!-- Day 19 Stack -->
+              <rect x="289" y="90" width="9" height="70" fill="#FFFFFF"/>
+              <rect x="289" y="38" width="9" height="52" fill="#BDBDBD"/>
+
+              <!-- X-Axis Labels -->
+              <text x="60" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">1</text>
+              <text x="60" y="185" fill="#555" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">NOV</text>
+              <text x="98" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">3</text>
+              <text x="136" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">6</text>
+              <text x="174" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">8</text>
+              <text x="212" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">10</text>
+              <text x="250" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">13</text>
+              <text x="288" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">15</text>
+              <text x="326" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">17</text>
+              <text x="364" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">20</text>
+              <text x="402" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">22</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Repos with most bugs -->
+        <div class="panel-footer-list">
+          <div class="footer-title">Repos with most bugs</div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="repo-name">rajnagani31/nero</span>
+            </div>
+            <span class="item-count">42</span>
+          </div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="repo-name">rajnagani31/fastapi</span>
+            </div>
+            <span class="item-count">1</span>
+          </div>
+          <div class="panel-action-link">
+            <a href="#" class="see-all-link">See all bugs caught →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 3: MEDIAN TIME TO MERGE ================= -->
+      <div class="kpi-panel" id="panel-kpi3">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg class="panel-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 9v12M13 6h3a2 2 0 0 1 2 2v7"/></svg>
+            <span>MEDIAN TIME TO MERGE</span>
+          </div>
+          <!-- Median Switcher Dropdown (Screenshot 6) -->
+          <div class="panel-control-dropdown">
+            <button class="panel-select-btn" id="kpi3MedianBtn">
+              <span id="kpi3MedianLabel">Median</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+            </button>
+            <div class="panel-menu" id="kpi3MedianMenu">
+              <button class="menu-item active" data-agg="Median">Median <span class="check">✓</span></button>
+              <button class="menu-item" data-agg="Mean">Mean</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Area Curve with White Stroke, Grayscale Fill, Dashed MEDIAN line -->
+        <div class="chart-wrapper">
+          <div class="chart-y-axis-label">MEDIAN TIME TO MERGE</div>
+          <div class="svg-chart-container">
+            <svg class="kpi-chart" viewBox="0 0 450 180" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Grid lines & Ticks -->
+              <line x1="42" y1="20" x2="440" y2="20" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="36" y="24" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">25d</text>
+
+              <line x1="42" y1="58" x2="440" y2="58" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="36" y="62" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">18.8d</text>
+
+              <line x1="42" y1="96" x2="440" y2="96" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="36" y="100" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">12.5d</text>
+
+              <line x1="42" y1="134" x2="440" y2="134" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="36" y="138" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">6.3d</text>
+
+              <line x1="42" y1="160" x2="440" y2="160" stroke="#2a2a2a" stroke-width="1"/>
+              <text x="36" y="164" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0</text>
+
+              <!-- Dashed MEDIAN Reference Line -->
+              <line x1="42" y1="152" x2="440" y2="152" stroke="#555" stroke-dasharray="3,3" stroke-width="1"/>
+              <text x="430" y="148" fill="#888" font-size="9" text-anchor="end" font-family="'JetBrains Mono', monospace">MEDIAN</text>
+
+              <!-- Area Fill & Stroke Curve -->
+              <path d="M 42 160 L 220 160 L 235 48 L 250 160 L 440 160 Z" fill="url(#areaGrad)"/>
+              <path d="M 42 160 L 220 160 L 235 48 L 250 160 L 440 160" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+
+              <!-- X-Axis Labels -->
+              <text x="60" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">1</text>
+              <text x="60" y="185" fill="#555" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">NOV</text>
+              <text x="98" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">4</text>
+              <text x="136" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">6</text>
+              <text x="174" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">9</text>
+              <text x="212" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">12</text>
+              <text x="250" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">14</text>
+              <text x="288" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">17</text>
+              <text x="326" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">19</text>
+              <text x="402" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">22</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Top Repos by Merge Time -->
+        <div class="panel-footer-list">
+          <div class="footer-title">Top Repos by Merge Time</div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="repo-name">rajnagani31/nero</span>
+            </div>
+            <span class="item-count">11.6d</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 4: TOP CONTRIBUTORS ================= -->
+      <div class="kpi-panel" id="panel-kpi4">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg class="panel-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>TOP CONTRIBUTORS</span>
+          </div>
+          <!-- Info Tooltip (Screenshot 10) -->
+          <div class="tooltip-container">
+            <button class="info-icon-btn" aria-label="Info">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <div class="tooltip-bubble">Merged PRs split by PR author.</div>
+          </div>
+        </div>
+
+        <!-- Vertical Pure White Bars -->
+        <div class="chart-wrapper">
+          <div class="chart-y-axis-label">MERGED PRS</div>
+          <div class="svg-chart-container">
+            <svg class="kpi-chart" viewBox="0 0 450 180" preserveAspectRatio="none">
+              <!-- Grid lines & Ticks -->
+              <line x1="35" y1="20" x2="440" y2="20" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="24" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">1</text>
+
+              <line x1="35" y1="58" x2="440" y2="58" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="62" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0.75</text>
+
+              <line x1="35" y1="96" x2="440" y2="96" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="100" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0.5</text>
+
+              <line x1="35" y1="134" x2="440" y2="134" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="138" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0.25</text>
+
+              <line x1="35" y1="160" x2="440" y2="160" stroke="#2a2a2a" stroke-width="1"/>
+              <text x="28" y="164" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0</text>
+
+              <!-- Pure White Sharp Bars (height = 1) -->
+              <rect x="290" y="20" width="8" height="140" fill="#FFFFFF"/>
+              <rect x="325" y="20" width="8" height="140" fill="#FFFFFF"/>
+
+              <!-- X-Axis Labels -->
+              <text x="60" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">1</text>
+              <text x="60" y="185" fill="#555" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">NOV</text>
+              <text x="98" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">3</text>
+              <text x="136" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">6</text>
+              <text x="174" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">8</text>
+              <text x="212" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">10</text>
+              <text x="250" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">13</text>
+              <text x="288" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">15</text>
+              <text x="326" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">17</text>
+              <text x="364" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">20</text>
+              <text x="402" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">22</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Top Contributors List -->
+        <div class="panel-footer-list">
+          <div class="footer-title">Top contributors</div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="user-handle">@rajnagani31</span>
+            </div>
+            <span class="item-count">2 PRs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 5: ADDRESSED RATE ================= -->
+      <div class="kpi-panel" id="panel-kpi5">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg class="panel-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>ADDRESSED RATE</span>
+          </div>
+          <!-- Info Tooltip (Screenshot 2) -->
+          <div class="tooltip-container">
+            <button class="info-icon-btn" aria-label="Info">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <div class="tooltip-bubble">Nero comments counted as addressed when follow-up code changes resolve the feedback.</div>
+          </div>
+        </div>
+
+        <!-- Big Headline Stat: 100% +67% -->
+        <div class="panel-headline-row">
+          <span class="headline-number">100%</span>
+          <span class="stat-badge badge-positive">+67%</span>
+        </div>
+
+        <!-- Area Curve with White Line and Dashed AVERAGE Reference Line -->
+        <div class="chart-wrapper">
+          <div class="chart-y-axis-label">ADDRESSED RATE</div>
+          <div class="svg-chart-container">
+            <svg class="kpi-chart" viewBox="0 0 450 180" preserveAspectRatio="none">
+              <!-- Grid lines & Ticks -->
+              <line x1="35" y1="20" x2="440" y2="20" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="24" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">100</text>
+
+              <line x1="35" y1="58" x2="440" y2="58" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="62" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">75</text>
+
+              <line x1="35" y1="96" x2="440" y2="96" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="100" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">50</text>
+
+              <line x1="35" y1="134" x2="440" y2="134" stroke="#1f1f1f" stroke-width="1"/>
+              <text x="28" y="138" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">25</text>
+
+              <line x1="35" y1="160" x2="440" y2="160" stroke="#2a2a2a" stroke-width="1"/>
+              <text x="28" y="164" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0</text>
+
+              <!-- Dashed AVERAGE line at 100 -->
+              <line x1="35" y1="20" x2="440" y2="20" stroke="#555" stroke-dasharray="3,3" stroke-width="1"/>
+              <text x="430" y="15" fill="#888" font-size="9" text-anchor="end" font-family="'JetBrains Mono', monospace">AVERAGE</text>
+
+              <!-- Twin Spikes at Days 15 and 17 reaching 100% -->
+              <path d="M 35 160 L 220 160 L 235 20 L 245 160 L 260 20 L 275 160 L 440 160 Z" fill="url(#areaGrad)"/>
+              <path d="M 35 160 L 220 160 L 235 20 L 245 160 L 260 20 L 275 160 L 440 160" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+
+              <!-- X-Axis Labels -->
+              <text x="60" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">1</text>
+              <text x="60" y="185" fill="#555" font-size="8" text-anchor="middle" font-family="'JetBrains Mono', monospace">NOV</text>
+              <text x="98" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">4</text>
+              <text x="136" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">6</text>
+              <text x="174" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">9</text>
+              <text x="212" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">12</text>
+              <text x="250" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">14</text>
+              <text x="288" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">17</text>
+              <text x="326" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">19</text>
+              <text x="402" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">22</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Top repos by addressed rate -->
+        <div class="panel-footer-list">
+          <div class="footer-title">Top repos by addressed rate</div>
+          <div class="list-item">
+            <div class="item-left">
+              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              <span class="repo-name">rajnagani31/nero</span>
+            </div>
+            <span class="item-count">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 6: COMMENT RATINGS ================= -->
+      <div class="kpi-panel" id="panel-kpi6">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg class="panel-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>COMMENT RATINGS</span>
+          </div>
+        </div>
+
+        <!-- Upvotes / Downvotes sub-stat row (Screenshot 2) -->
+        <div class="comment-ratings-header">
+          <div class="rating-col">
+            <span class="rating-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+              UPVOTES
+            </span>
+            <span class="rating-number">0</span>
+          </div>
+          <div class="rating-col">
+            <span class="rating-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"/></svg>
+              DOWNVOTES
+            </span>
+            <span class="rating-number">0</span>
+          </div>
+        </div>
+
+        <!-- Empty State in Middle -->
+        <div class="empty-state-container">
+          <p class="empty-message">No comment ratings</p>
+        </div>
+
+        <!-- Most Upvoted Comments Section with Dashed Box -->
+        <div class="panel-footer-list">
+          <div class="footer-title">Most Upvoted Comments</div>
+          <div class="dashed-data-box">
+            <span>No data available</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
