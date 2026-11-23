@@ -1,14 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  TrendingUp,
   GitPullRequest,
-  CheckCircle2,
-  Clock,
   Bug,
-  ShieldCheck,
-  Download,
-  Loader2,
-  Sparkles,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -99,17 +93,17 @@ export const AnalyticsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in font-sans">
+    <div className="space-y-6 animate-fade-in font-sans min-h-full bg-[#0A0A0A]">
       {/* ─── Page Title & Filter Toolbar ──────────────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--nero-bd,#262626)] pb-5">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#262626] pb-5">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[var(--nero-tx,#ededed)] flex items-center gap-2.5">
+          <h1 className="text-xl font-bold tracking-tight text-[#FFFFFF] flex items-center gap-2.5">
             <span>Analytics</span>
-            <span className="text-[var(--nero-mu,#9a9a9a)] font-normal text-base hidden sm:inline">
+            <span className="text-[#8A8A8A] font-normal text-base hidden sm:inline">
               — How Nero is reviewing your pull requests
             </span>
           </h1>
-          <p className="text-xs text-[var(--nero-mu,#9a9a9a)] mt-1">
+          <p className="text-xs text-[#8A8A8A] mt-1">
             Review velocity, defect detection rates, and engineering throughput across active repositories.
           </p>
         </div>
@@ -123,84 +117,87 @@ export const AnalyticsPage: React.FC = () => {
         />
       </div>
 
-      {/* ─── Sub-Tabs Navigation (PR Reviews vs Bugs Caught) ───────── */}
-      <div className="flex items-center gap-2 border-b border-[var(--nero-bd,#262626)] pb-1">
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("pr")}
-          className={cn(
-            "inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer",
-            activeSubTab === "pr"
-              ? "bg-[var(--nero-sf2,#1a1a1a)] text-[var(--nero-tx,#ededed)] shadow-sm border border-[var(--nero-bd,#262626)]"
-              : "text-[var(--nero-mu,#9a9a9a)] hover:text-[var(--nero-tx,#ededed)] hover:bg-[var(--nero-sf,#111111)]"
-          )}
-        >
-          <GitPullRequest className="h-3.5 w-3.5 text-[var(--nero-g,#19e68c)]" />
-          <span>PR Reviews</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("bug")}
-          className={cn(
-            "inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer",
-            activeSubTab === "bug"
-              ? "bg-[var(--nero-sf2,#1a1a1a)] text-[var(--nero-tx,#ededed)] shadow-sm border border-[var(--nero-bd,#262626)]"
-              : "text-[var(--nero-mu,#9a9a9a)] hover:text-[var(--nero-tx,#ededed)] hover:bg-[var(--nero-sf,#111111)]"
-          )}
-        >
-          <Bug className="h-3.5 w-3.5 text-rose-400" />
-          <span>Bugs Caught</span>
-        </button>
+      {/* ─── 1 Unified Summary Box (housing Sub-Tabs & 4 KPIs) ──────── */}
+      <div className="rounded-none border border-[#262626] bg-[#111111] overflow-hidden">
+        {/* Top bar inside summary box: Sub-Tabs */}
+        <div className="flex items-center gap-1 px-4 py-2 border-b border-[#262626] bg-[#0E0E0E]">
+          <button
+            type="button"
+            onClick={() => setActiveSubTab("pr")}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-none transition-colors cursor-pointer",
+              activeSubTab === "pr"
+                ? "bg-[#1A1A1A] text-[#FFFFFF] border border-[#2E2E2E]"
+                : "text-[#8A8A8A] hover:text-[#EDEDED] border border-transparent hover:bg-[#161616]"
+            )}
+          >
+            <GitPullRequest className="h-3.5 w-3.5 text-[#8A8A8A]" />
+            <span>PR Reviews</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSubTab("bug")}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-none transition-colors cursor-pointer",
+              activeSubTab === "bug"
+                ? "bg-[#1A1A1A] text-[#FFFFFF] border border-[#2E2E2E]"
+                : "text-[#8A8A8A] hover:text-[#EDEDED] border border-transparent hover:bg-[#161616]"
+            )}
+          >
+            <Bug className="h-3.5 w-3.5 text-[#8A8A8A]" />
+            <span>Bugs Caught</span>
+          </button>
+        </div>
+
+        {/* 4 KPI Metrics Side-by-Side in 1 Unified Box */}
+        {loading && !stats ? (
+          <KPISkeletonGrid />
+        ) : stats ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#262626]">
+            {/* Stat 1: Total PRs */}
+            <KPIStatCell
+              title="Total PRs"
+              value={stats.total_prs}
+              delta={stats.prs_delta_pct}
+              tooltip="Pull requests processed in period"
+              subtitle="Pull requests processed in period"
+            />
+
+            {/* Stat 2: Total Reviews */}
+            <KPIStatCell
+              title="Total Reviews"
+              value={stats.total_reviews}
+              delta={stats.reviews_delta_pct}
+              tooltip="Autonomous reviews completed"
+              subtitle="Autonomous reviews completed"
+            />
+
+            {/* Stat 3: Avg Merge Time */}
+            <KPIStatCell
+              title="Avg Merge Time"
+              value={stats.avg_merge_time_display}
+              delta={stats.merge_time_delta_pct}
+              tooltip="PR open to merge turnaround"
+              subtitle="PR open to merge turnaround"
+            />
+
+            {/* Stat 4: # of Bugs Caught */}
+            <KPIStatCell
+              title="# of bugs caught"
+              value={stats.bugs_caught}
+              delta={`in ${stats.bugs_caught_repos_count} repos`}
+              tooltip="Caught before protected branch merge"
+              subtitle="Caught before protected branch merge"
+            />
+          </div>
+        ) : null}
       </div>
 
-      {/* ─── 4 Top KPI Metric Cards ───────────────────────────────── */}
-      {loading && !stats ? (
-        <KPISkeletonGrid />
-      ) : stats ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Card 1: Total PRs */}
-          <KPICard
-            title="Total PRs"
-            value={stats.total_prs}
-            delta={stats.prs_delta_pct}
-            icon={<GitPullRequest className="h-4 w-4 text-[var(--nero-g,#19e68c)]" />}
-            subtitle="Pull requests processed in period"
-          />
-
-          {/* Card 2: Total Reviews */}
-          <KPICard
-            title="Total Reviews"
-            value={stats.total_reviews}
-            delta={stats.reviews_delta_pct}
-            icon={<ShieldCheck className="h-4 w-4 text-emerald-400" />}
-            subtitle="Autonomous reviews completed"
-          />
-
-          {/* Card 3: Avg Merge Time */}
-          <KPICard
-            title="Avg Merge Time"
-            value={stats.avg_merge_time_display}
-            delta={stats.merge_time_delta_pct}
-            icon={<Clock className="h-4 w-4 text-[var(--nero-g,#19e68c)]" />}
-            subtitle="PR open to merge turnaround"
-          />
-
-          {/* Card 4: # of Bugs Caught */}
-          <KPICard
-            title="# of bugs caught"
-            value={stats.bugs_caught}
-            delta={`in ${stats.bugs_caught_repos_count} repos`}
-            icon={<Bug className="h-4 w-4 text-rose-400" />}
-            subtitle="Caught before protected branch merge"
-          />
-        </div>
-      ) : null}
-
-      {/* ─── 6 Interactive Chart Panels (2-Column Grid) ──────────── */}
+      {/* ─── 6 Interactive Chart Panels (Equal 2-Column Grid) ──────── */}
       {loading && !charts ? (
         <ChartSkeletonGrid />
       ) : charts ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-fr">
           {/* Panel 1: PRs Reviewed */}
           <PRsReviewedPanel
             series={charts.prs_reviewed.series}
@@ -240,60 +237,52 @@ export const AnalyticsPage: React.FC = () => {
   );
 };
 
-// ─── Subcomponent: KPICard (Hoisted) ───────────────────────────────
-interface KPICardProps {
+// ─── Subcomponent: KPIStatCell (Unified in Summary Box) ─────────────
+interface KPIStatCellProps {
   title: string;
   value: string | number;
   delta?: string;
-  icon: React.ReactNode;
+  tooltip: string;
   subtitle: string;
 }
 
-const KPICard: React.FC<KPICardProps> = React.memo(
-  ({ title, value, delta, icon, subtitle }) => {
+const KPIStatCell: React.FC<KPIStatCellProps> = React.memo(
+  ({ title, value, delta, tooltip, subtitle }) => {
     return (
-      <div className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-4 space-y-2 hover:border-[var(--nero-mu,#9a9a9a)] transition-colors">
-        <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[var(--nero-mu,#9a9a9a)]">
+      <div className="p-4 space-y-2 hover:bg-[#141414] transition-colors">
+        <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-[#8A8A8A]">
           <span>{title}</span>
-          <span>{icon}</span>
+          <span title={tooltip} className="cursor-help text-[#5A5A5A] hover:text-[#8A8A8A]">
+            <Info className="h-3.5 w-3.5" />
+          </span>
         </div>
         <div className="flex items-baseline justify-between gap-2">
-          <div className="text-2xl font-bold font-mono tabular-nums text-[var(--nero-tx,#ededed)]">
+          <div className="text-2xl font-bold font-mono tabular-nums text-[#FFFFFF]">
             {value}
           </div>
           {delta ? (
-            <span
-              className={cn(
-                "px-2 py-0.5 rounded text-[11px] font-mono font-medium border",
-                delta.startsWith("-") || delta.includes("repos")
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                  : "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
-              )}
-            >
+            <span className="px-1.5 py-0.5 rounded-[2px] text-[11px] font-mono font-medium border border-[#065F46] bg-[#064E3B] text-[#34D399]">
               {delta}
             </span>
           ) : null}
         </div>
-        <p className="text-[11px] text-[var(--nero-mu,#9a9a9a)] truncate">
+        <p className="text-[11px] text-[#8A8A8A] truncate">
           {subtitle}
         </p>
       </div>
     );
   }
 );
-KPICard.displayName = "KPICard";
+KPIStatCell.displayName = "KPIStatCell";
 
 // ─── Subcomponent: KPISkeletonGrid (Hoisted) ───────────────────────
 const KPISkeletonGrid: React.FC = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#262626]">
     {[1, 2, 3, 4].map((i) => (
-      <div
-        key={i}
-        className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-4 space-y-2 animate-pulse"
-      >
-        <div className="h-3 w-20 rounded bg-white/[0.04]" />
-        <div className="h-7 w-28 rounded bg-white/[0.06]" />
-        <div className="h-3 w-36 rounded bg-white/[0.03]" />
+      <div key={i} className="p-4 space-y-2 animate-pulse">
+        <div className="h-3 w-20 rounded-none bg-white/[0.04]" />
+        <div className="h-7 w-28 rounded-none bg-white/[0.06]" />
+        <div className="h-3 w-36 rounded-none bg-white/[0.03]" />
       </div>
     ))}
   </div>
@@ -305,11 +294,11 @@ const ChartSkeletonGrid: React.FC = () => (
     {[1, 2, 3, 4, 5, 6].map((i) => (
       <div
         key={i}
-        className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-5 space-y-4 animate-pulse h-[320px]"
+        className="rounded-none border border-[#262626] bg-[#111111] p-5 space-y-4 animate-pulse h-[360px]"
       >
-        <div className="h-4 w-44 rounded bg-white/[0.05]" />
-        <div className="h-[180px] w-full rounded bg-white/[0.02]" />
-        <div className="h-3 w-32 rounded bg-white/[0.04]" />
+        <div className="h-4 w-44 rounded-none bg-white/[0.05]" />
+        <div className="h-[200px] w-full rounded-none bg-white/[0.02]" />
+        <div className="h-3 w-32 rounded-none bg-white/[0.04]" />
       </div>
     ))}
   </div>
