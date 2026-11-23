@@ -13,6 +13,11 @@
   <!-- TOP NAVIGATION BAR -->
   <header class="top-nav">
     <div class="nav-left">
+      <!-- Sidebar collapse toggle icon matching Greptile -->
+      <button class="nav-sidebar-toggle" title="Toggle Sidebar">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="0"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      </button>
+
       <!-- Nero Brand Logo -->
       <a href="#" class="brand-logo">
         <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -104,7 +109,7 @@
         <!-- Repositories Dropdown (Screenshot 7 & 9) -->
         <div class="dropdown-wrapper" id="reposDropdownWrapper">
           <button class="filter-btn" id="reposBtn">
-            <svg class="filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <svg class="filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4H4v16h3M17 4h3v16h-3M9 10h1M14 10h1M11 14h2"/></svg>
             <span id="reposLabel">All repositories</span>
             <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
@@ -256,8 +261,8 @@
         <div class="stat-col">
           <div class="stat-label">Total PRs</div>
           <div class="stat-value-row">
-            <span class="stat-num" id="statTotalPrs">2</span>
-            <span class="stat-badge badge-neutral">±0%</span>
+            <span class="stat-num" id="statTotalPrs">4</span>
+            <span class="stat-badge badge-positive">+100%</span>
           </div>
         </div>
 
@@ -272,8 +277,8 @@
         <div class="stat-col">
           <div class="stat-label">Avg Merge Time</div>
           <div class="stat-value-row">
-            <span class="stat-num" id="statAvgMergeTime">11.6d</span>
-            <span class="stat-badge badge-positive">-56%</span>
+            <span class="stat-num" id="statAvgMergeTime">7.2d</span>
+            <span class="stat-badge badge-positive">-73%</span>
           </div>
         </div>
 
@@ -294,49 +299,49 @@
         <div class="panel-header">
           <div class="panel-title">
             <svg class="panel-title-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/></svg>
-            <span>PRS REVIEWED BY NERO</span>
+            <span>PRS REVIEWED BY GREPTILE</span>
           </div>
           <!-- Metric Dropdown Button (Screenshot 4 & 5) -->
           <div class="panel-control-dropdown">
             <button class="panel-select-btn" id="kpi1MetricBtn">
-              <span id="kpi1MetricLabel">Mean comments / PR</span>
+              <span id="kpi1MetricLabel">PRs reviewed</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
             </button>
             <div class="panel-menu" id="kpi1MetricMenu">
-              <button class="menu-item" data-metric="PRs reviewed">PRs reviewed</button>
+              <button class="menu-item active" data-metric="PRs reviewed">PRs reviewed <span class="check">✓</span></button>
               <button class="menu-item" data-metric="Total reviews">Total reviews</button>
               <button class="menu-item" data-metric="Avg reviews / PR">Avg reviews / PR</button>
               <button class="menu-item" data-metric="Median comments / PR">Median comments / PR</button>
-              <button class="menu-item active" data-metric="Mean comments / PR">Mean comments / PR <span class="check">✓</span></button>
+              <button class="menu-item" data-metric="Mean comments / PR">Mean comments / PR</button>
             </div>
           </div>
         </div>
 
         <!-- Chart Container with SVG & Rotated Y-Axis Label -->
         <div class="chart-wrapper">
-          <div class="chart-y-axis-label" id="kpi1YAxisLabel">MEAN COMMENTS / PR</div>
+          <div class="chart-y-axis-label" id="kpi1YAxisLabel">PRS REVIEWED</div>
           <div class="svg-chart-container">
             <svg class="kpi-chart" viewBox="0 0 450 180" preserveAspectRatio="none">
               <!-- Grid lines & Ticks -->
               <line x1="35" y1="20" x2="440" y2="20" stroke="#1f1f1f" stroke-width="1"/>
-              <text x="28" y="24" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">15</text>
+              <text x="28" y="24" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">2</text>
 
               <line x1="35" y1="58" x2="440" y2="58" stroke="#1f1f1f" stroke-width="1"/>
-              <text x="28" y="62" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">12</text>
+              <text x="28" y="62" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">1.5</text>
 
               <line x1="35" y1="96" x2="440" y2="96" stroke="#1f1f1f" stroke-width="1"/>
-              <text x="28" y="100" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">8</text>
+              <text x="28" y="100" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">1</text>
 
               <line x1="35" y1="134" x2="440" y2="134" stroke="#1f1f1f" stroke-width="1"/>
-              <text x="28" y="138" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">4</text>
+              <text x="28" y="138" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0.5</text>
 
               <line x1="35" y1="160" x2="440" y2="160" stroke="#2a2a2a" stroke-width="1"/>
               <text x="28" y="164" fill="#666" font-size="11" text-anchor="end" font-family="'JetBrains Mono', monospace">0</text>
 
               <!-- Pure White Rectangular Bars (0px radius) -->
-              <rect x="225" y="88" width="9" height="72" fill="#FFFFFF" class="chart-bar"/>
-              <rect x="257" y="125" width="9" height="35" fill="#FFFFFF" class="chart-bar"/>
-              <rect x="289" y="32" width="9" height="128" fill="#FFFFFF" class="chart-bar"/>
+              <rect x="238" y="20" width="8" height="140" fill="#FFFFFF" class="chart-bar"/>
+              <rect x="270" y="96" width="8" height="64" fill="#FFFFFF" class="chart-bar"/>
+              <rect x="302" y="20" width="8" height="140" fill="#FFFFFF" class="chart-bar"/>
 
               <!-- X-Axis Labels (JetBrains Mono) -->
               <text x="60" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">1</text>
@@ -344,39 +349,34 @@
               <text x="98" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">3</text>
               <text x="136" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">6</text>
               <text x="174" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">8</text>
-              <text x="212" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">10</text>
+              <text x="212" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">11</text>
               <text x="250" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">13</text>
-              <text x="288" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">15</text>
-              <text x="326" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">17</text>
-              <text x="364" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">20</text>
-              <text x="402" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">22</text>
+              <text x="288" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">16</text>
+              <text x="326" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">18</text>
+              <text x="364" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">21</text>
+              <text x="402" y="174" fill="#666" font-size="10" text-anchor="middle" font-family="'JetBrains Mono', monospace">23</text>
             </svg>
           </div>
         </div>
 
         <!-- Bottom Ranking List -->
         <div class="panel-footer-list">
-          <div class="footer-title">PRs With Most Comments</div>
-          <div class="list-item">
-            <div class="item-left">
-              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-              <span class="pr-title">#51 feat(ai-engine): integrate LangGraph review engine, tiered router, te......</span>
+          <div class="footer-title" id="kpi1FooterTitle">Top Repos by Review Count</div>
+          <div id="kpi1ListContainer">
+            <div class="list-item">
+              <div class="item-left">
+                <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                <span class="repo-name">rajnagani31/nero</span>
+              </div>
+              <span class="item-count">4</span>
             </div>
-            <span class="item-count">16</span>
-          </div>
-          <div class="list-item">
-            <div class="item-left">
-              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-              <span class="pr-title">#52 Nero 44 <span class="repo-sub">rajnagani31/nero</span></span>
+            <div class="list-item">
+              <div class="item-left">
+                <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                <span class="repo-name">rajnagani31/fastapi</span>
+              </div>
+              <span class="item-count">3</span>
             </div>
-            <span class="item-count">14</span>
-          </div>
-          <div class="list-item">
-            <div class="item-left">
-              <svg class="gh-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-              <span class="pr-title">#53 Nero 45 <span class="repo-sub">rajnagani31/nero</span></span>
-            </div>
-            <span class="item-count">12</span>
           </div>
         </div>
       </div>

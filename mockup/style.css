@@ -7,12 +7,15 @@
   --bg-canvas: #0A0A0A;
   --bg-card: #111111;
   --bg-card-subtle: #141414;
-  --bg-control: #1A1A1A;
-  --bg-control-hover: #222222;
+  --bg-control: #141414;
+  --bg-control-hover: #1E1E1E;
   --bg-popover: #161616;
-  --border-main: #242424;
-  --border-control: #2E2E2E;
-  --border-highlight: #3D3D3D;
+  
+  /* Exact Greptile border color: rgb(45, 45, 45) -> #2D2D2D */
+  --border-main: rgb(45, 45, 45);
+  --border-control: rgb(45, 45, 45);
+  --border-highlight: rgb(65, 65, 65);
+  --border-gridline: rgb(35, 35, 35);
   
   --text-primary: #F0F0F0;
   --text-secondary: #A0A0A0;
@@ -37,9 +40,9 @@
   border-radius: 0 !important; /* STRICT ZERO RADIUS EVERYWHERE */
 }
 
-/* Delta badges are allowed minimal 2px for subtle visual separation */
-.stat-badge {
-  border-radius: 2px !important;
+/* Delta badges & role badges have subtle 3px radius matching Greptile */
+.stat-badge, .role-badge {
+  border-radius: 3px !important;
 }
 
 body {
@@ -73,6 +76,24 @@ body {
   display: flex;
   align-items: center;
   gap: 32px;
+}
+
+.nav-sidebar-toggle {
+  background: transparent;
+  border: 1px solid var(--border-main);
+  color: #777777;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: -16px;
+}
+
+.nav-sidebar-toggle:hover {
+  color: #FFFFFF;
+  border-color: var(--border-highlight);
 }
 
 .brand-logo {
@@ -190,9 +211,9 @@ body {
 .filter-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 16px;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -472,8 +493,9 @@ body {
 }
 
 .stat-col {
-  padding: 20px 24px;
-  border-right: 1px solid var(--border-main);
+  padding: 24px 28px;
+  /* Removed vertical borders between columns to match Greptile */
+  border-right: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
