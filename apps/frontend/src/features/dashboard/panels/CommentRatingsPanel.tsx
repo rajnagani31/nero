@@ -1,5 +1,5 @@
 import React from "react";
-import { ThumbsUp, ThumbsDown, MessageSquare, ExternalLink } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, Info } from "lucide-react";
 import { CommentRatingsData } from "@/types/analytics";
 
 interface CommentRatingsPanelProps {
@@ -16,57 +16,65 @@ export const CommentRatingsPanel: React.FC<CommentRatingsPanelProps> = ({
     totalVotes > 0 ? Math.round((upvotes / totalVotes) * 100) : 100;
 
   return (
-    <div className="rounded-lg border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf,#111111)] p-5 space-y-4">
+    <div className="rounded-none border border-[#262626] bg-[#111111] p-5 space-y-4 h-full flex flex-col justify-between">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-[var(--nero-tx,#ededed)] flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-[var(--nero-g,#19e68c)]" />
-            <span>Comment ratings</span>
-          </h3>
-          <p className="text-xs text-[var(--nero-mu,#9a9a9a)] mt-0.5">
-            Developer feedback on AI review suggestions
-          </p>
-        </div>
-        <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
-          {satisfactionRate}% Helpful
-        </span>
-      </div>
-
-      {/* Upvote & Downvote Counter Cards */}
-      <div className="grid grid-cols-2 gap-3 pt-2">
-        {/* Upvotes */}
-        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-1">
-          <div className="flex items-center justify-between text-xs text-emerald-400">
-            <span className="font-medium">Helpful Feedback</span>
-            <ThumbsUp className="h-4 w-4" />
+      <div>
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-[#FFFFFF] flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-[#8A8A8A]" />
+              <span>Comment ratings</span>
+              <span
+                title="Developer feedback ratings on Nero review suggestions"
+                className="cursor-help text-[#5A5A5A] hover:text-[#8A8A8A]"
+              >
+                <Info className="h-3.5 w-3.5" />
+              </span>
+            </h3>
+            <p className="text-xs text-[#8A8A8A] mt-0.5">
+              Developer feedback on AI review suggestions
+            </p>
           </div>
-          <div className="text-2xl font-bold font-mono tabular-nums text-emerald-400">
-            {upvotes}
-          </div>
-          <div className="text-[11px] text-[var(--nero-mu,#9a9a9a)]">
-            Marked as accurate findings
-          </div>
+          <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-none border border-[#262626] bg-[#1A1A1A] text-[#EDEDED]">
+            {satisfactionRate}% Helpful
+          </span>
         </div>
 
-        {/* Downvotes */}
-        <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-4 space-y-1">
-          <div className="flex items-center justify-between text-xs text-rose-400">
-            <span className="font-medium">Unhelpful / Noise</span>
-            <ThumbsDown className="h-4 w-4" />
+        {/* Upvote & Downvote Counter Cards (Monochrome Greptile Style) */}
+        <div className="grid grid-cols-2 gap-3 pt-3">
+          {/* Upvotes */}
+          <div className="rounded-none border border-[#262626] bg-[#161616] p-4 space-y-1">
+            <div className="flex items-center justify-between text-xs text-[#EDEDED]">
+              <span className="font-medium">Helpful Feedback</span>
+              <ThumbsUp className="h-4 w-4 text-[#8A8A8A]" />
+            </div>
+            <div className="text-2xl font-bold font-mono tabular-nums text-[#FFFFFF]">
+              {upvotes}
+            </div>
+            <div className="text-[11px] text-[#8A8A8A]">
+              Marked as accurate findings
+            </div>
           </div>
-          <div className="text-2xl font-bold font-mono tabular-nums text-rose-400">
-            {downvotes}
-          </div>
-          <div className="text-[11px] text-[var(--nero-mu,#9a9a9a)]">
-            Ignored or false positives
+
+          {/* Downvotes */}
+          <div className="rounded-none border border-[#262626] bg-[#161616] p-4 space-y-1">
+            <div className="flex items-center justify-between text-xs text-[#EDEDED]">
+              <span className="font-medium">Unhelpful / Noise</span>
+              <ThumbsDown className="h-4 w-4 text-[#8A8A8A]" />
+            </div>
+            <div className="text-2xl font-bold font-mono tabular-nums text-[#BDBDBD]">
+              {downvotes}
+            </div>
+            <div className="text-[11px] text-[#8A8A8A]">
+              Ignored or false positives
+            </div>
           </div>
         </div>
       </div>
 
       {/* Most Upvoted Suggestions */}
-      <div className="pt-3 border-t border-[var(--nero-bd,#262626)] space-y-2">
-        <div className="text-[11px] font-mono uppercase tracking-wider text-[var(--nero-mu,#9a9a9a)]">
+      <div className="pt-3 border-t border-[#262626] space-y-2">
+        <div className="text-[11px] font-mono uppercase tracking-wider text-[#8A8A8A]">
           Most Upvoted Findings
         </div>
         {data.most_upvoted_comments && data.most_upvoted_comments.length > 0 ? (
@@ -74,26 +82,26 @@ export const CommentRatingsPanel: React.FC<CommentRatingsPanelProps> = ({
             {data.most_upvoted_comments.map((comment) => (
               <div
                 key={comment.id}
-                className="p-2.5 rounded border border-[var(--nero-bd,#262626)] bg-[var(--nero-sf2,#1a1a1a)] space-y-1 text-xs"
+                className="p-2.5 rounded-none border border-[#262626] bg-[#161616] space-y-1 text-xs"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium text-[var(--nero-tx,#ededed)] truncate">
+                  <span className="font-medium text-[#EDEDED] truncate">
                     {comment.title}
                   </span>
-                  <span className="inline-flex items-center gap-1 font-mono text-[11px] text-emerald-400 shrink-0">
-                    <ThumbsUp className="h-3 w-3" />
+                  <span className="inline-flex items-center gap-1 font-mono text-[11px] text-[#EDEDED] shrink-0">
+                    <ThumbsUp className="h-3 w-3 text-[#8A8A8A]" />
                     <span>+{comment.upvotes}</span>
                   </span>
                 </div>
-                <div className="font-mono text-[11px] text-[var(--nero-mu,#9a9a9a)] truncate">
+                <div className="font-mono text-[11px] text-[#8A8A8A] truncate">
                   {comment.file_path}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="p-4 text-center border border-dashed border-[var(--nero-bd,#262626)] rounded text-xs text-[var(--nero-mu,#9a9a9a)]">
-            No feedback entries recorded yet.
+          <div className="p-4 text-center border border-[#262626] rounded-none text-xs text-[#8A8A8A]">
+            No comment ratings yet
           </div>
         )}
       </div>
