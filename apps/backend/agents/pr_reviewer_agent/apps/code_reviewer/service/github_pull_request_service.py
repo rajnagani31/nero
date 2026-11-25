@@ -50,18 +50,25 @@ class GitHubInstallationTokenService:
         return token
 
     async def _get_cached_installation_token(self, installation_id: int) -> str | None:
-        client = redis.from_url(config.REDIS_URL, decode_responses=True)
         try:
-            return await client.get(self._cache_key(installation_id))
-        finally:
-            await client.aclose()
+            client = redis.from_url(config.REDIS_URL, decode_responses=True)
+            try:
+                return await client.get(self._cache_key(installation_id))
+            finally:
+                await client.aclose()
+        except Exception as exc:
+            print(f"[Redis Warning] Failed to fetch cached token: {exc}")
+            return None
 
     async def _cache_installation_token(self, installation_id: int, token: str) -> None:
-        client = redis.from_url(config.REDIS_URL, decode_responses=True)
         try:
-            await client.set(self._cache_key(installation_id), token, ex=55 * 60)
-        finally:
-            await client.aclose()
+            client = redis.from_url(config.REDIS_URL, decode_responses=True)
+            try:
+                await client.set(self._cache_key(installation_id), token, ex=55 * 60)
+            finally:
+                await client.aclose()
+        except Exception as exc:
+            print(f"[Redis Warning] Failed to cache token: {exc}")
 
     @staticmethod
     def _cache_key(installation_id: int) -> str:
@@ -178,3 +185,53 @@ class GitHubPullRequestService:
             PullRequestFile.model_validate(file_data)
             for file_data in data.get("files", [])
         ]
+    
+class GitHubInstallationService:
+    def __init__(
+        self,
+        token_service: GitHubInstallationTokenService | None = None,
+    ):
+        self.token_service = token_service or GitHubInstallationTokenService()
+
+    @classmethod
+    async def get_installation_repositories(
+        cls,
+        installation_id: int,
+        token_service: GitHubInstallationTokenService | None = None,
+    ) -> list[dict]:
+        """
+        Return repositories accessible to a GitHub App installation.
+        """
+        svc = token_service or GitHubInstallationTokenService()
+        token = await svc.create_installation_access_token(
+            installation_id
+        )
+
+        url = "https://api.github.com/installation/repositories"
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                url,
+                headers=headers,
+            )
+
+            response.raise_for_status()
+
+        return response.json()["repositories"]
+
+
+# Re-export GitHub review service and helper functions
+from apps.backend.agents.pr_reviewer_agent.apps.code_reviewer.service.github_review_service import (  # noqa: E402
+    GitHubReviewService,
+    GitHubReviewSubmissionError,
+    submit_pr_review,
+    submit_pr_review_sync,
+)
+
+

@@ -1,7 +1,21 @@
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 
-from sqlalchemy import BigInteger, DateTime, Enum as SQLEnum, ForeignKey, Index, Integer, SmallInteger, String, MetaData
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    Enum as SQLEnum,
+    ForeignKey,
+    Index,
+    Integer,
+    MetaData,
+    Numeric,
+    SmallInteger,
+    String,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,6 +29,7 @@ class ReviewJobStatusEnum(str, Enum):
     QUEUED = "queued"
     RUNNING = "running"
     SUCCEEDED = "succeeded"
+    PARTIALLY_SUCCEEDED = "partially_succeeded"
     FAILED = "failed"
     CANCELED = "canceled"
 
@@ -24,6 +39,7 @@ class ReviewJob(Base, DateTimeMixin):
     __table_args__ = (
         Index("ix_review_jobs_status_queued_at", "status", "queued_at"),
         Index("ix_review_jobs_pr_id_queued_at", "pr_id", "queued_at"),
+        Index("ix_review_jobs_pr_reviewed_commit", "pr_id", "reviewed_commit_sha"),
     )
     __metadata__ = MetaData(info={"schema_disc": "Stores one AI review execution/lifecycle for a PR."})
     """
@@ -52,7 +68,7 @@ class ReviewJob(Base, DateTimeMixin):
         - failures,
         - when the review started and finished.
     """
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     pr_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("pull_requests.id", ondelete="CASCADE"), nullable=False)
     status: Mapped[ReviewJobStatusEnum] = mapped_column(
         SQLEnum(ReviewJobStatusEnum, name="review_job_status_enum"),
@@ -69,3 +85,19 @@ class ReviewJob(Base, DateTimeMixin):
     final_review_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     base_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
     head_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    review_status: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    github_review_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    reviewed_commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    delivery_error: Mapped[str | None] = mapped_column(String(512), nullable=True)
+
+    # Runtime AI Telemetry & Multi-Provider Tracking (nullable until processed)
+    user_tier: Mapped[str] = mapped_column(String(32), nullable=False, default="free", server_default=text("'free'"))
+    primary_provider: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    model_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    fallback_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=text("false"))
+    fallback_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    total_prompt_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default=text("0"))
+    total_completion_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default=text("0"))
+    total_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default=text("0"))
+    total_latency_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default=text("0"))
+    credits_deducted: Mapped[Decimal] = mapped_column(Numeric(8, 4), nullable=False, default=Decimal("0.0000"), server_default=text("0.0000"))

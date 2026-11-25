@@ -8,23 +8,16 @@ from langchain_openai import ChatOpenAI
 
 load_dotenv()
 
+# Ensure GROQ_API_KEY is available if GROQ_API_KEY_PRIMARY is set
+if not os.getenv("GROQ_API_KEY") and os.getenv("GROQ_API_KEY_PRIMARY"):
+    os.environ["GROQ_API_KEY"] = os.environ["GROQ_API_KEY_PRIMARY"]
 
-
-
-
-model = ChatGroq(
-    model="llama-3.1-8b-instant",
-    temperature=0.0,
-    max_retries=2,
-    # other params...
-)
 
 class GroqLLMService:
 
     def __init__(self, model_name: str ) -> None:
-        self.api_key = os.getenv("GROQ_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY") or os.getenv("GROQ_API_KEY_PRIMARY")
         self.model_name = "openai/gpt-oss-20b" if model_name else None
-
 
         if self.api_key is None:
             raise ValueError("GROQ_API_KEY is not found")

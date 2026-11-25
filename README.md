@@ -167,6 +167,18 @@ Generate Inline Comments & Review Summary
 POST Review Comments directly to GitHub PR
 ```
 
+### 🔑 GitHub App Permissions & Configuration
+
+For NeroAI to fetch PR diffs and automatically post reviews with summary and inline code comments back to GitHub, the GitHub App must be configured with:
+
+* **Repository permissions**:
+  * `Pull requests`: **Read & write** *(Required: allows creating pull request reviews and inline comments via `POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews`)*
+  * `Contents`: **Read-only** *(allows reading repository code files and diffs)*
+  * `Metadata`: **Read-only** *(required by all GitHub Apps)*
+* **Subscribe to events**:
+  * `Pull request` *(opened, synchronize, reopened, ready_for_review)*
+  * `Installation` & `Installation repositories`
+
 ---
 
 ## 📚 Documentation Shortcuts

@@ -62,6 +62,35 @@
   --assistant-copy-text-hover: #fafaf9;
   --assistant-thinking: #a1a1aa;
   --scroll-thumb: rgba(113, 113, 122, 0.45);
+
+  /* ─── Greptile Design Language Tokens (Issue 1 Visual Overhaul) ─── */
+  --greptile-canvas: #0A0A0A;
+  --greptile-card: #111111;
+  --greptile-card-hover: #161616;
+  --greptile-surface-2: #1A1A1A;
+  --greptile-border: #262626;
+  --greptile-border-subtle: #1E1E1E;
+  --greptile-control-border: #2E2E2E;
+  --greptile-text-primary: #FFFFFF;
+  --greptile-text-secondary: #EDEDED;
+  --greptile-text-muted: #8A8A8A;
+  --greptile-text-faint: #5A5A5A;
+
+  /* Chart Monochrome Palette (100% Grayscale) */
+  --greptile-chart-1: #FFFFFF;
+  --greptile-chart-2: #BDBDBD;
+  --greptile-chart-3: #8A8A8A;
+  --greptile-chart-4: #5A5A5A;
+  --greptile-chart-5: #3A3A3A;
+
+  /* Allowed Delta Badge Accent */
+  --greptile-delta-bg: #064E3B;
+  --greptile-delta-text: #34D399;
+  --greptile-delta-border: #065F46;
+
+  /* Strict Square Radius Tokens */
+  --greptile-radius-box: 0px;
+  --greptile-radius-badge: 2px;
   color: var(--text-primary);
   background: var(--app-bg);
 }
@@ -625,3 +654,39 @@ body {
     align-self: flex-start;
   }
 }
+
+/* ─── Nero AI Modern Design System Tokens ───────────────────────── */
+:root {
+  --nero-bg: #0a0a0a;
+  --nero-sf: #111111;
+  --nero-sf2: #1a1a1a;
+  --nero-bd: #262626;
+  --nero-tx: #ededed;
+  --nero-mu: #9a9a9a;
+  --nero-g: #19e68c;
+  --nero-gd: #0f2e22;
+  --nero-on: #04130c;
+  --nero-red: #ff7a7a;
+  --nero-amb: #ffc857;
+}
+
+:root[data-theme="light"] {
+  --nero-bg: #f6f7f6;
+  --nero-sf: #ffffff;
+  --nero-sf2: #eef0ee;
+  --nero-bd: #dcdfdc;
+  --nero-tx: #111111;
+  --nero-mu: #5c635f;
+  --nero-g: #0a8f5a;
+  --nero-gd: #d9f5e8;
+  --nero-on: #ffffff;
+  --nero-red: #c0392b;
+  --nero-amb: #946200;
+}
+
+.nero-shell {
+  background-color: var(--nero-bg);
+  color: var(--nero-tx);
+  min-height: 100vh;
+}
+

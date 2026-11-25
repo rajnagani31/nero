@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
+from pydantic_core import Url
 
 ChatMode = Literal["general", "code", "debug", "review"]
 UserType = Literal["guest", "registered"]
@@ -119,6 +120,7 @@ class CreateThreadRequest(BaseModel):
     title: str
     mode: ChatMode = "general"
     client_session_id: str | None = None
+    # url : str
 
     @field_validator("mode", mode="before")
     @classmethod

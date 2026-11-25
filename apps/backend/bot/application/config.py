@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -47,11 +47,15 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", REDIS_URL)
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
+GROQ_API_KEY_PRIMARY = os.getenv("GROQ_API_KEY_PRIMARY") or os.getenv("GROQ_API_KEY")
+GROQ_API_KEY_FALLBACK = os.getenv("GROQ_API_KEY_FALLBACK")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 AUTO_CREATE_SCHEMA = os.getenv("AUTO_CREATE_SCHEMA", "false").lower() == "true"
 AUTO_MIGRATE_LEGACY_AUTH_SCHEMA = (
     os.getenv("AUTO_MIGRATE_LEGACY_AUTH_SCHEMA", "true").lower() == "true"
 )
+GITHUB_APP_SLUG = os.getenv("GITHUB_APP_SLUG")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(

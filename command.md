@@ -18,6 +18,48 @@ uv run celery -A apps.backend.bot.application.core.celery:celery_app worker --lo
 uv run celery -A apps.backend.bot.application.core.celery:celery_app worker --loglevel=INFO --pool=threads --concurrency=4
 ```
 
+# alembic
+```bash
+# Run migrations
+alembic upgrade head
+
+# Create a new migration
+alembic revision --autogenerate -m "migration message"
+
+# Check current database revision
+alembic current
+
+# See all migration history
+alembic history
+
+# Show detailed migration history
+alembic history --verbose
+
+# See the latest migration
+alembic heads
+
+# Check whether models have pending schema changes
+alembic check
+
+# Upgrade one migration
+alembic upgrade +1
+
+# Upgrade two migrations
+alembic upgrade +2
+
+# Roll back the latest migration
+alembic downgrade -1
+
+# Roll back the latest two migrations
+alembic downgrade -2
+
+# Roll back everything
+alembic downgrade base
+
+# Downgrade to a specific revision
+alembic downgrade <revision_id>
+```
+
 
 # Docker Commands Cheat Sheet
 
