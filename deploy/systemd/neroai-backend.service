@@ -1,0 +1,22 @@
+[Unit]
+Description=NeroAI FastAPI Backend Service
+After=network.target redis.service
+
+[Service]
+Type=simple
+# Change WorkingDirectory and User to match your OCI user (ubuntu or opc)
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/var/www/codebot
+EnvironmentFile=/var/www/codebot/.env
+
+# Run FastAPI using UV on port 8080 with 2 workers (ideal for 1-2 CPU VM)
+ExecStart=/root/.cargo/bin/uv run uvicorn apps.backend.bot.application.main:app --host 0.0.0.0 --port 8080 --workers 2
+
+Restart=always
+RestartSec=5
+KillMode=process
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

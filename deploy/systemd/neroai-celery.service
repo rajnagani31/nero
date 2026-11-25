@@ -1,0 +1,20 @@
+[Unit]
+Description=NeroAI Celery Background Worker Service
+After=network.target redis.service neroai-backend.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/var/www/codebot
+EnvironmentFile=/var/www/codebot/.env
+
+# Run Celery worker with concurrency=2 for 1 CPU
+ExecStart=/root/.cargo/bin/uv run celery -A apps.backend.bot.application.core.celery:celery_app worker --loglevel=INFO --concurrency=2
+
+Restart=always
+RestartSec=5
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
