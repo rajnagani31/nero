@@ -21,6 +21,8 @@ cors_origins = [
     "http://127.0.0.1:3000",
     "https://nerotechnology.online",
     "http://nerotechnology.online",
+    "https://www.nerotechnology.online",
+    "http://www.nerotechnology.online",
 ]
 if frontend_base_url and frontend_base_url not in cors_origins:
     cors_origins.append(frontend_base_url)
@@ -33,6 +35,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/health")
+@app.get("/api/health")
+async def health_check():
+    """Public health check endpoint for monitoring and uptime probes."""
+    return {"status": "ok", "service": "neroai-unified-gateway", "version": "0.1.0"}
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(chat_history_router, prefix="/api")
